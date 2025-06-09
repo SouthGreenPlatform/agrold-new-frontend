@@ -10,7 +10,7 @@ COPY dist ./dist
 
 # Label: Dockerfile
 # Description: Dockerfile for a Vue.js application
-LABEL org.opencontainers.image.source=https://github.com/BillGates98/agrold-vue-frontend
+LABEL org.opencontainers.image.source=https://github.com/SouthGreenPlatform/agrold-new-frontend
 LABEL org.opencontainers.image.description="Vue version of Agrold"
 LABEL org.opencontainers.image.version=1.0.0
 LABEL org.opencontainers.image.authors="Bill Gates Happi Happi, PhD"
