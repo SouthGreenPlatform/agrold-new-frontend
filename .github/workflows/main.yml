@@ -2,7 +2,7 @@ name: CI - Docker Build and Push
 
 on:
   push:
-    branches: [ "dev" ] # Or your main development branch
+    branches: [ "dev" ] # dev Or your main development branch
   pull_request:
     branches: [ "dev" ]
 
