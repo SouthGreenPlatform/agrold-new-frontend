@@ -34,10 +34,10 @@ jobs:
           file: ./Dockerfile
           push: ${{ github.event_name == 'push' }}
           tags: |
-            ghcr.io/billgates98/agrold-vue-frontend:latest
-            ghcr.io/billgates98/agrold-vue-frontend:${{ github.sha }}
+            ghcr.io/southgreenplatform/agrold-new-frontend:latest
+            ghcr.io/southgreenplatform/agrold-new-frontend:${{ github.sha }}
           labels: |
-            org.opencontainers.image.source=https://github.com/BillGates98/agrold-vue-frontend
+            org.opencontainers.image.source=https://github.com/southgreenplatform/agrold-new-frontend
             org.opencontainers.image.description="Vue version of Agrold"
             org.opencontainers.image.version=1.0.0
             org.opencontainers.image.authors="Bill Gates Happi Happi, PhD"
