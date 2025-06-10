@@ -26,14 +26,20 @@ npm install
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### No Type-Check, Compile and Minify for Production
 
 ```sh
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Commit and Push
+
+```sh
+git commit -m "--message--" & git push
+```
+
+<!-- ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
 npm run lint
-```
+``` -->
