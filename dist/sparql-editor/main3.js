@@ -1,4 +1,3 @@
-$(document).ready(function () {
 
     $.fn.scrollView = function () {
         return this.each(function () {
@@ -156,5 +155,3 @@ $(document).ready(function () {
             }
         });
     }
-
-});

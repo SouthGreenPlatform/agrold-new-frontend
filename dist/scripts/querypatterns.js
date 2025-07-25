@@ -236,7 +236,6 @@ function selectPattern(patternIdx) {
     var selectedpattern = Object.keys(qpatterns)[patternIdx];
     document.getElementById("query").value = prefixes + selectedpattern;
     yasqe.setValue(document.getElementById("query").value);
-    //console.log(document.getElementById("query").value);
 
     document.getElementById("parameters").innerHTML = "";
     document.getElementById("parameters").innerHTML = "";
