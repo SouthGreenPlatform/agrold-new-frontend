@@ -28,7 +28,6 @@ addPlugin("/scripts/localStorage.js");
 addPlugin("/scripts/introjs/intro.js");
 addPlugin("/scripts/lib.js", variables);
 addPlugin("/sparql-editor/main1.js");
-addPlugin("/sparql-editor/main2.js");
 addPlugin("/sparql-editor/yasr.bundled.min.js");
 addPlugin("/sparql-editor/yasqe.bundled.min.js");
 setTimeout(() => {
@@ -37,6 +36,7 @@ setTimeout(() => {
 }, 1000); // Wait for the DOM to be ready
 
 addPlugin("/scripts/querypatterns.js");
+addPlugin("/sparql-editor/main2.js");
 
 addPlugin("/sparql-editor/d3.v3.min.js");
 addPlugin("/sparql-editor/d3sparql.js");
