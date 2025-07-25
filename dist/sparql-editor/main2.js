@@ -1,5 +1,4 @@
 
-$(document).ready(function () {
 
     document.getElementById("fileToLoad").onchange = function () {
         document.getElementById("uploadFile").value = this.value;
@@ -53,4 +52,3 @@ $(document).ready(function () {
                 historyContent.appendChild(document.createElement("hr"));
         })
     }
-});
