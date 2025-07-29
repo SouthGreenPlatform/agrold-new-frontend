@@ -48,8 +48,8 @@ import ArianThread from './ArianThread.vue';
           <li nav-item dropdown></li>
         </ul>
         <div class="form-inline my-2 my-lg-0">
-          <a href="https://twitter.com/agro_ld?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large"
-            data-show-screen-name="false" data-show-count="false">Follow @agro_ld</a>
+          <!--<a href="https://twitter.com/agro_ld?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large"
+            data-show-screen-name="false" data-show-count="false">Follow @agro_ld</a>-->
           <a class="nav-link btn btn-outline-secondary nohover" href="survey"><i
               class="fa fa-star-o"></i>&nbsp;&nbsp;Please send us your feedback!</a>
         </div>
