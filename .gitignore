@@ -28,3 +28,4 @@ coverage
 
 *.tsbuildinfo
 .github_token
+old-dist
