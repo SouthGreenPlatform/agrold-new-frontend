@@ -6,6 +6,7 @@ var rdm = false; // Indique si écran déja redimenssionné
 			d_radius: 400,
 			array: []
 		};
+var animationInterval = null;
 var canvas, ctx;
 var canvasDots = function(nbDots,dist) {
 		colorDot = 'grey',
@@ -16,7 +17,7 @@ var canvasDots = function(nbDots,dist) {
 		ctx.fillStyle = colorDot;
 		ctx.lineWidth = .3;
 		ctx.strokeStyle = color;
-		
+
 		dots.nb = nbDots;
 		dots.distance = dist;
 
@@ -106,7 +107,7 @@ var canvasDots = function(nbDots,dist) {
 		mousePosition.y = window.innerHeight / 2;
 
 
-		setInterval(createDots, 1000/30);
+		animationInterval = setInterval(createDots, 1000/30);
 	};
 	function init(){
 		automata = true;
@@ -129,20 +130,24 @@ var canvasDots = function(nbDots,dist) {
 		}
 		else
 			console.log("écran trop petit pour l'affichage du canvas");
-		
+
 	}
 	function cleanEntry(){
 		for(var i = 0; i< dots.array.length ; i ++){
 			dots.array.splice(i,1);
 			if(i<300) break;
-		}	
+		}
 	}
-	var stackResize = 0; // La pile d'évenements 
+	var stackResize = 0; // La pile d'évenements
 	function setStopTimeOut(){
 		window.clearTimeout(timeOutID);
 		console.log('TimouteId is cleared')
 	}
 	function cleanCanvas(){
+    if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+    }
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		dots.array = [];
 		console.log('--Clear Canvas');
@@ -163,7 +168,7 @@ var canvasDots = function(nbDots,dist) {
 		canvas = document.querySelector('canvas');
 		ctx = canvas.getContext('2d');
 		init();
-		window.setInterval(checkOverFlow,30000);
+		window.setInterval(checkOverFlow,1000);
 		$(window).resize(function(e){
 			if(automata){
 				automata = false;
