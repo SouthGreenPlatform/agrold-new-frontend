@@ -78,8 +78,8 @@ $(document).ready(function () {
                 </form>
                 <div class="error"></div>
                 <div class="success"></div>
-                <span style="margin-top:30px;color:red;display:none" class="message">Please enter a keword</span>
               </center>
+                <span style="margin-top:30px;color:red;display:none" class="message">Please enter a keyword</span>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import Home from '@/views/Home.vue'
 import About from '@/views/About.vue'
 import AdvancedSearch from '@/views/AdvancedSearch.vue'
 import SparqlEditor from '@/views/SparqlEditor.vue'

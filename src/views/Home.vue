@@ -102,7 +102,7 @@ addPlugin("/scripts/home1.js", variables);
                     </div>
                     <blockquote class="card-blockquote">
                       <p>Search easily existing relationships between entities</p>
-                      <footer><a href="/relfinder" class="btn btn-outline-success">Use this tool</a></footer>
+                      <footer><a href="/rel-finder" class="btn btn-outline-success">Use this tool</a></footer>
                     </blockquote>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ addPlugin("/scripts/home1.js", variables);
 
 <style>
 /* @import '@/assets/css/hp.css'; */
-/* 
+/*
 #fullPage {
   width: 100rem !important;
   height: 100%;
@@ -166,7 +166,7 @@ h1 {
   /* border: 2px solid white; */
   width: 100%;
   /* margin-top: 15rem; */
-  background: url('/images/banner-img.jpg') 50% !important;
+  background: #7b8b29 url('/images/home-background.jpg') no-repeat 50% !important;
 
   /* background-position: center; */
   background-size: cover;
@@ -201,7 +201,7 @@ h1 {
   /* margin-left: -4rem !important; */
 }
 
-/* 
+/*
 .router-view {
   padding-top: 0rem !important;
   padding-bottom: 0rem !important;

@@ -38,7 +38,7 @@ import ArianThread from './ArianThread.vue';
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="documentation">Documentation</a>
-              <a class="dropdown-item" href="quick-search" title="Faceted Search">Faceted Search</a>
+              <a class="dropdown-item" href="quick-search" title="Quick Search">Quick Search</a>
               <a class="dropdown-item" href="api-doc" title="AgroLD API documentation">AgroLD API</a>
             </div>
           </li>
