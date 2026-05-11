@@ -168,7 +168,7 @@ var canvasDots = function(nbDots,dist) {
 		canvas = document.querySelector('canvas');
 		ctx = canvas.getContext('2d');
 		init();
-		window.setInterval(checkOverFlow,1000);
+		window.setInterval(checkOverFlow,30000);
 		$(window).resize(function(e){
 			if(automata){
 				automata = false;
