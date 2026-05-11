@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ArianThread from './ArianThread.vue';
 
+defineOptions({ name: 'AppHeader' });
 
 </script>
 
@@ -17,7 +17,7 @@ import ArianThread from './ArianThread.vue';
         <img src="/images/v5.png">
       </a>
       <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-        <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+        <ul class="navbar-nav ml-auto mt-2 mt-md-0">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
@@ -45,7 +45,6 @@ import ArianThread from './ArianThread.vue';
           <li class="nav-item">
             <a class="nav-link" href="about">About</a>
           </li>
-          <li nav-item dropdown></li>
         </ul>
         <div class="form-inline my-2 my-lg-0">
           <!--<a href="https://twitter.com/agro_ld?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large"
@@ -64,5 +63,9 @@ nav {
   font-size: 1rem;
   padding: 1rem 0;
   border-bottom: 1px solid greenyellow;
+}
+
+ul.navbar-nav {
+  margin-left: auto;
 }
 </style>

@@ -112,7 +112,7 @@ var canvasDots = function(nbDots,dist) {
 	function init(){
 		automata = true;
 		timeOutID = 0; // L'id du timout à supprimer à chaque utilisation
-		console.log('init launched');
+		//console.log('init launched');
 		var W = window.innerWidth;
 		if(W > 450){
 			if(W < 500)
@@ -128,8 +128,8 @@ var canvasDots = function(nbDots,dist) {
 			else
 				canvasDots(50,225);
 		}
-		else
-			console.log("écran trop petit pour l'affichage du canvas");
+		else {}
+			//console.log("écran trop petit pour l'affichage du canvas");
 
 	}
 	function cleanEntry(){
@@ -141,7 +141,7 @@ var canvasDots = function(nbDots,dist) {
 	var stackResize = 0; // La pile d'évenements
 	function setStopTimeOut(){
 		window.clearTimeout(timeOutID);
-		console.log('TimouteId is cleared')
+		//console.log('TimouteId is cleared')
 	}
 	function cleanCanvas(){
     if (animationInterval) {
@@ -150,7 +150,7 @@ var canvasDots = function(nbDots,dist) {
     }
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		dots.array = [];
-		console.log('--Clear Canvas');
+		//console.log('--Clear Canvas');
 		init();
 	}
 	function triggerResizingScreen(){
@@ -158,10 +158,10 @@ var canvasDots = function(nbDots,dist) {
 			cleanCanvas();
 			setStopTimeOut();
 			},1500);
-		console.log('---- resized GOOD ----');
+		//console.log('---- resized GOOD ----');
 	}
 	function checkOverFlow(){
-		console.log('Interval refresh');
+		//console.log('Interval refresh');
 		cleanCanvas();
 	}
 	window.onload = function() {
@@ -178,7 +178,7 @@ var canvasDots = function(nbDots,dist) {
 
 			// init();
 			stackResize++;
-			console.log('resized CALL ' + stackResize);
+			//console.log('resized CALL ' + stackResize);
 
 		});
 	};

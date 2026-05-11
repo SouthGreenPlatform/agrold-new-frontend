@@ -54,7 +54,7 @@ $(document).ready(function () {
             //verticalCentered: false*/*/*/*/*/*/
         });
 
-        /* Correction d'un conflit entre le fait que fullPage.js veuille le centrer 
+        /* Correction d'un conflit entre le fait que fullPage.js veuille le centrer
          verticalement et qu'on le veuille sticky */
 
         $('#section1 .fp-tableCell').removeClass('fp-tableCell').addClass('bug-rport-1').attr('style', 'height: auto;');
@@ -94,7 +94,7 @@ $(document).ready(function () {
             if (width <= max[i][0] && height <= max[i][1]) {
                 $('.slider').addClass("hideMe");
                 i = -1;
-                console.log('break : {' + width + ' x ' + height + '}');
+                //console.log('break : {' + width + ' x ' + height + '}');
                 break;
             }
         if (i == max.length)

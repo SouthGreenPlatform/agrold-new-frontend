@@ -1,39 +1,62 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FACETED_URL } from '@/assets/scripts/config';
 import { addPlugin } from '@/assets/scripts/utils';
+import { onMounted } from 'vue';
 import ArianThread from '@/components/shared/ArianThread.vue';
 
-addPlugin("/scripts/introjs/intro.js");
-addPlugin("/scripts/dots.js");
+onMounted(async () => {
+  await addPlugin('/scripts/introjs/intro.js');
+  await addPlugin('/scripts/dots.js');
 
-$(document).ready(function () {
-  $("#search").attr("action", FACETED_URL);
+  const win = window as unknown as { init?: () => void };
+  if (typeof win.init === 'function') {
+    win.init();
+  }
 
+  const searchForm = document.querySelector<HTMLFormElement>('#search');
+  const keywordInput = document.querySelector<HTMLInputElement>('.keyword');
+  const messageEl = document.querySelector<HTMLElement>('.message');
+  const successEl = document.querySelector<HTMLElement>('.success');
 
-  $('form#search').click(function (e) {
-    var request = $(".keyword").val();
-    console.log('request' + request);
-    if (request == "") {
-      $('.message').show();
-      e.stopPropagation();
-      e.preventDefault();
-    } else {
-      $('.message').hide();
-      saveRequest(request);
-    }
-  });
+  if (searchForm) {
+    searchForm.action = FACETED_URL;
 
-  function saveRequest(keyword) {
-    $.ajax({
-      type: 'post',
-      data: 'p={m:"setQuickSearch",keyword:' + keyword + '}',
-      url: 'ToolHistory',
-      success: function (data) {
-        $('.success').html(data);
+    searchForm.addEventListener('submit', (e) => {
+      const request = keywordInput?.value ?? '';
+      if (!request.trim()) {
+        if (messageEl) {
+          messageEl.style.display = 'block';
+        }
+        e.preventDefault();
+        return;
       }
+
+      if (messageEl) {
+        messageEl.style.display = 'none';
+      }
+
+      saveRequest(request);
     });
   }
 
+  function saveRequest(keyword: string) {
+    fetch('ToolHistory', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: 'p={m:"setQuickSearch",keyword:' + encodeURIComponent(keyword) + '}'
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        if (successEl) {
+          successEl.innerHTML = data;
+        }
+      })
+      .catch(() => {
+        // preserve existing behavior without blocking user action
+      });
+  }
 });
 
 </script>
@@ -115,25 +138,40 @@ $(document).ready(function () {
 
 .foowrap {
   position: relative;
-  min-height: 100%;
+  min-height: calc(100vh - 72px);
+  overflow: hidden;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  overflow: hidden;
+}
+
+.canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .Q-search {
   position: absolute !important;
   z-index: 9999;
   top: 50%;
-  left: center;
+  left: 50%;
+  transform: translate(-50%, -50%);
   border: 1px solid silver;
   border-radius: 4px;
-  transform: translateY(-50%);
   background: white;
-  padding: 50px 0px;
-  width: 100%;
+  padding: 40px 30px;
+  width: min(100%, 720px);
+  max-width: 90%;
 }
 
 .centering-search {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

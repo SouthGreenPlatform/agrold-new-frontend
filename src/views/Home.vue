@@ -1,19 +1,16 @@
-<script setup lang="js">
+<script setup lang="ts">
 
-import { addPlugin } from '@/assets/scripts/utils';
-import { A_GRO_LD_API_JSON_URL, WEB_APP_URL, FACETED_URL, SPAR_QL_ENDPOINT_URL, DEFAULT_API_FORMAT } from '../assets/scripts/config';
+defineOptions({ name: 'HomeView' });
 
+import { onMounted } from 'vue';
+import { FACETED_URL } from '../assets/scripts/config';
 
-const variables = `
-  const A_GRO_LD_API_JSON_URL  = "${A_GRO_LD_API_JSON_URL}";
-  const SPAR_QL_ENDPOINT_URL = "${SPAR_QL_ENDPOINT_URL}";
-  const WEB_APP_URL = "${WEB_APP_URL}";
-  const FACETED_URL = "${FACETED_URL}";
-  const DEFAULT_API_FORMAT = "${DEFAULT_API_FORMAT}";
-  const SPARQL_ENDPOINT = "${SPAR_QL_ENDPOINT_URL}";
-  `;
-// Add plugins
-addPlugin("/scripts/home1.js", variables);
+onMounted(() => {
+  const searchForm = document.getElementById('search');
+  if (searchForm) {
+    searchForm.setAttribute('action', FACETED_URL);
+  }
+});
 
 </script>
 
@@ -142,16 +139,19 @@ h1 {
   color: white;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 #fullPage {
-  /* border: 4px solid black; */
   height: 100% !important;
-  /* top: 12.6rem; */
-  position: fixed !important;
-  /* padding: 0; */
-  /* text-align: center; */
   width: 100% !important;
-  /* line-height: 30px; */
-  /* background-color: #f6f6f6; */
+  min-height: 100vh;
+  position: fixed !important;
+  /*position: relative !important;*/
+  /*overflow-x: hidden;
+  overflow-y: auto;*/
   bottom: 0;
   left: 0;
 }
@@ -160,20 +160,15 @@ h1 {
   height: calc(100vh);
 }
 
-
 #section0 {
   position: relative;
-  /* border: 2px solid white; */
   width: 100%;
-  /* margin-top: 15rem; */
-  background: #7b8b29 url('/images/home-background.jpg') no-repeat 50% !important;
-
-  /* background-position: center; */
+  background: #7b8b29 url('/images/home-background.jpg') no-repeat center top !important;
   background-size: cover;
-  padding: 4rem !important;
-  padding-top: 12rem !important;
   height: 65% !important;
   overflow: auto;
+  padding: 8rem 1.5rem 4rem !important;
+  min-height: calc(100vh - 72px);
 }
 
 #section1 {
@@ -184,22 +179,19 @@ h1 {
   width: 100% !important;
   overflow: auto;
   padding-bottom: 5rem !important;
-  /* padding-bottom: 4rem !important; */
 }
 
 @media (max-width: 950px) {
+  #section0 {
+    padding: 6rem 1rem 3rem !important;
+    min-height: 80vh;
+  }
+
   #section1 {
     overflow: auto;
-    /* padding-bottom: 40rem; */
   }
 }
 
-
-#app {
-  /* max-width: none; */
-  /* padding-top: 0rem !important; */
-  /* margin-left: -4rem !important; */
-}
 
 /*
 .router-view {

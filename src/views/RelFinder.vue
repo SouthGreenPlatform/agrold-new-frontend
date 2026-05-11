@@ -14,20 +14,18 @@ import { REL_FINDER_URL } from '../assets/scripts/config';
   </ArianThread>
 
   <div class="foowrap m-4 d-flex flex-column">
-    <div class="d-flex flex-row justify-content-start">
-      <h3>Quick guide to RelFinder Reformed</h3>
-      <h3 class="mr-3 ml-3">|</h3>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+      <div>
+        <h3>Quick guide to RelFinder Reformed</h3>
+      </div>
       <a
-        class = "btn btn-primary"
-        :href=REL_FINDER_URL
+        class="btn btn-primary"
+        :href="REL_FINDER_URL"
         target="_blank"
-        rel="noopener noreferre"
+        rel="noopener noreferrer"
       >
-        Open RefFinder Reformed
-      </a>
-      <!--<button class="btn btn-primary" onclick="window.open("href=https://github.com/VisualDataWeb/RelFinder")">
         Open RelFinder Reformed
-      </button>-->
+      </a>
     </div>
 
     <hr />
