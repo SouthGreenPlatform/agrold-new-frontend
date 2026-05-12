@@ -13,19 +13,24 @@ import { REL_FINDER_URL } from '../assets/scripts/config';
     </template>
   </ArianThread>
 
+  <div class="button-container">
+    <p>
+      Link to the RelFinder Reformed tool
+    </p>
+    <a
+      class="btn btn-primary"
+      :href="REL_FINDER_URL"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open RelFinder Reformed
+    </a>
+  </div>
   <div class="foowrap m-4 d-flex flex-column">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
       <div>
         <h3>Quick guide to RelFinder Reformed</h3>
       </div>
-      <a
-        class="btn btn-primary"
-        :href="REL_FINDER_URL"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open RelFinder Reformed
-      </a>
     </div>
 
     <hr />
@@ -85,4 +90,14 @@ iframe {
   top: 0;
   border-style: none;
 }
+.button-container {
+  height: 100%;
+  width: 100%;
+  margin: 7%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 </style>
