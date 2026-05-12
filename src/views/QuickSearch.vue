@@ -72,7 +72,9 @@ onMounted(async () => {
   </ArianThread>
   <div class="foowrap">
     <div class="canvas">
-      <canvas style="width:100%;height:100%;"></canvas>
+      <center>
+        <canvas style="width:100%;height:100%;"></canvas>
+      </center>
       <section class="centering-search">
         <div class="container-fluid Q-search">
           <div class="container delim">
@@ -138,15 +140,18 @@ onMounted(async () => {
 
 .foowrap {
   position: relative;
-  min-height: calc(100vh - 72px);
-  overflow: hidden;
+  min-height: calc(50vh - 22px);
+  width: fit-content;
+  height: fit-content;
+  /*overflow: hidden;*/
 }
 
 .canvas {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - 72px);
-  overflow: hidden;
+  height: fit-content;
+  /*min-height: calc(100vh - 72px);
+  overflow: hidden;*/
 }
 
 .canvas canvas {
