@@ -48,8 +48,8 @@ $(document).ready(function () {
         <div class="container">
             <div class="col-md-12 col-lg-12 resolve-grid">
                 <div class="col">
-                    <a href="http://www.ibc-montpellier.fr/wp/wp5">
-                        <div class="hexagone"><img src="/images/IBC.png" alt="IBC"></div>
+                    <a href="https://bioinfo.ird.fr/index.php/en/front-page-2/">
+                        <div class="hexagone"><img src="/images/logo-i-trop.png" alt="IBC"></div>
                     </a>
                 </div>
                 <div class="col">
@@ -136,6 +136,9 @@ footer img {
 
 .hexagone {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 60px;
     height: 60px;
     border: dashed 1px white;

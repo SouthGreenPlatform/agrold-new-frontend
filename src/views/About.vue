@@ -50,7 +50,7 @@ import ArianThread from '@/components/shared/ArianThread.vue';
             <em>yann[dot]pomie[at]ird[dot]fr</em>
           </p>
         </div>
-        
+
         <div>
           <p><b>Gildas Tagny,</b><br>
             <i>Engineer, INRA</i><br>
@@ -125,7 +125,7 @@ import ArianThread from '@/components/shared/ArianThread.vue';
 
             <br>
             This work have been supported by Institut de Biologie Computationnelle (IBC -
-            <a href="http://www.ibc-montpellier.fr" target="_blank">http://www.ibc-montpellier.fr</a>),
+            <a href="https://bioinfo.ird.fr/index.php/en/front-page-2/" target="_blank">https://bioinfo.ird.fr/index.php/en/front-page-2/</a>),
             and the Agropolis Foundation (<a href="http://www.agropolis-fondation.fr"
               target="_blank">http://www.agropolis-fondation.fr</a>)
           </p>
