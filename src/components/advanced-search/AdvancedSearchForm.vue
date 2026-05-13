@@ -34,9 +34,18 @@ $(document).ready(function (e) {
     var concept = $(this).text();
     $('#afft').text(concept);
     $('#afft').val(param);
+
+    var placeholders = {
+      gene: "e.g., stachyose, TCP2",
+      protein: "e.g., TBP1, qtl",
+      qtl: "e.g., BNL6.32, trait",
+      pathway: "e.g., fermentation, acetate",
+      ontology: "e.g., plant height, regulation of gene expression"
+    };
+    $('#keyword').attr('placeholder', placeholders[param] || "Search term...");
   });
 
-  // functions 
+  // functions
   function checkForm() {
     SearchContext.type = $('#afft').attr('value');
     SearchContext.keyword = $('#keyword').val();
@@ -47,15 +56,6 @@ $(document).ready(function (e) {
 </script>
 
 <template>
-  <div class="text-center mb-5">
-    Some examples:<br />
-    ontological concepts: 'plant height' or 'regulation of gene expression'.<br />
-    Gene: keywords 'stachyose', 'protein_coding', 'qtl', 'Constitutive flowering repressor', 'fungal growth'; or name
-    'TCP2'.<br />
-    Pathway: keywords 'fermentation' or 'acetate' or 'cytokinins'.<br />
-    protein: name 'TBP1', keyword 'qtl'.<br />
-    QTL: name 'BNL6.32' or keyword 'trait'.<br />
-  </div>
   <div class="Q-Search A-Search">
     <div class="container delim">
       <div class="row">
@@ -75,7 +75,7 @@ $(document).ready(function (e) {
                 <a class="dropdown-item" href="#ontology">Ontology</a>
               </div>
             </div>
-            <input id="keyword" class="keyword" name="keyword" type="text" autofocus placeholder="Search term...">
+            <input id="keyword" class="keyword" name="keyword" type="text" autofocus placeholder="Search term, or select a filter on the left">
             <span class="input-group-btn">
               <button class="btn btn-primary yasrbtn" id="jcb" value="Search" style="border-radius: 0 5px 5px 0;">
                 <svg color="white" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 512 512">

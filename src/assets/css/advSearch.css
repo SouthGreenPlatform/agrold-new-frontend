@@ -6,7 +6,6 @@
 *    Advanced Search    *
 ************************/
 section #advanced-form {
-   padding-top : 150px;
    transition : all 1s;
 }
 section #advanced-form.searched {
@@ -67,10 +66,10 @@ body {
     width : 100%;
     background : #b0d168;
     border : rgba(255,255,255,0);
-    
+
 }
 .A-Search .delim {
-    padding: 35px;  
+    padding: 35px;
     background: #86b817;
 }
 /********************
