@@ -6,7 +6,6 @@ import SparqlEditor from '@/views/SparqlEditor.vue'
 import Documentation from '@/views/Documentation.vue'
 import QuickSearch from '@/views/QuickSearch.vue'
 import ApiDoc from '@/views/ApiDoc.vue'
-import Survey from '@/views/Survey.vue'
 import RelFinder from '@/views/RelFinder.vue'
 
 const router = createRouter({
@@ -50,11 +49,6 @@ const router = createRouter({
       path: '/api-doc',
       name: 'api-doc',
       component: ApiDoc,
-    },
-    {
-      path: '/survey',
-      name: 'survey',
-      component: Survey,
     },
     {
       path: '/rel-finder',
