@@ -13,6 +13,8 @@ declare global {
 const chatMessages = ref([{ role: 'system', text: 'Assistant initialised.' }]);
 const chatInput = ref('');
 const chatLoading = ref(false);
+const collapsed = ref(true);
+const animating = ref(false);
 
 async function sendMessage() {
   const text = chatInput.value && chatInput.value.trim();
@@ -38,9 +40,18 @@ async function sendMessage() {
   }
 }
 
+function toggleChat() {
+  if (animating.value) return;
+  animating.value = true;
+  collapsed.value = !collapsed.value;
+  window.setTimeout(() => {
+    animating.value = false;
+  }, 320);
+}
+
 function adjustChatBottom() {
-  const box = document.querySelector<HTMLElement>('.text_box');
-  if (!box) return;
+  const shell = document.querySelector<HTMLElement>('.chat_shell');
+  if (!shell) return;
   const footer = document.querySelector<HTMLElement>('#footer, footer.footer, .footer')
     || document.querySelector<HTMLElement>('footer');
   let bottom = 16;
@@ -53,7 +64,7 @@ function adjustChatBottom() {
       console.log(e);
     }
   }
-  box.style.bottom = bottom + 'px';
+  shell.style.bottom = bottom + 'px';
 }
 
 onMounted(() => {
@@ -87,18 +98,28 @@ onBeforeUnmount(() => {
       <Footer />
     </div>
 
-    <div class="text_box" aria-label="Chat LLM">
-      <div class="chat_header">Assistant</div>
-      <div class="chat_messages">
-        <div v-for="(m, i) in chatMessages" :key="i" :class="['chat_msg', m.role]">
-          <div class="msg_role">{{ m.role === 'user' ? 'You' : (m.role === 'assistant' ? 'Assistant' : 'System') }}</div>
-          <div class="msg_text">{{ m.text }}</div>
+    <div class="chat_shell" :class="{ open: !collapsed, animating: animating }" :aria-expanded="!collapsed">
+      <div class="text_box" :aria-hidden="collapsed">
+        <div class="chat_header">Assistant</div>
+        <div class="chat_messages">
+          <div v-for="(m, i) in chatMessages" :key="i" :class="['chat_msg', m.role]">
+            <div class="msg_role">{{ m.role === 'user' ? 'You' : (m.role === 'assistant' ? 'Assistant' : 'System') }}</div>
+            <div class="msg_text">{{ m.text }}</div>
+          </div>
+        </div>
+        <div class="chat_input">
+          <textarea v-model="chatInput" @keydown.enter.prevent="sendMessage" :disabled="collapsed" placeholder="Enter a message..."></textarea>
+          <button @click="sendMessage" :disabled="collapsed || chatLoading">{{ chatLoading ? '...' : 'Send' }}</button>
         </div>
       </div>
-      <div class="chat_input">
-        <textarea v-model="chatInput" @keydown.enter.prevent="sendMessage" placeholder="Enter a message..."></textarea>
-        <button @click="sendMessage" :disabled="chatLoading">{{ chatLoading ? '...' : 'Send' }}</button>
-      </div>
+      <button
+        class="chat_toggle"
+        @click="toggleChat"
+        :disabled="animating"
+        :aria-label="collapsed ? 'Open chat' : 'Close chat'"
+      >
+        <span class="arrow">{{ collapsed ? '←' : '→' }}</span>
+      </button>
     </div>
   </div>
 </template>
@@ -114,22 +135,76 @@ h1 {
   padding-bottom: 8rem;
 }
 
-.text_box {
+.chat_shell {
+  --chat-width: min(360px, 90vw);
   position: fixed;
   right: 16px;
   bottom: 16px;
-  width: min(360px, 90vw);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  width: 40px;
+  transition: width 0.32s ease;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.chat_shell.open {
+  width: calc(var(--chat-width) + 40px);
+}
+
+.chat_shell .text_box {
+  transition: opacity 0.2s ease;
+}
+
+.chat_shell:not(.open) .text_box {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.text_box {
+  width: var(--chat-width);
   max-height: calc(100vh - 32px);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 8px 0 0 8px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.12);
   overflow: hidden;
   font-family: inherit;
-  z-index: 9999;
+}
+
+.chat_toggle {
+  width: 40px;
+  min-width: 40px;
+  height: 56px;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  background: #719c15;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.chat_toggle:hover:not(:disabled) {
+  background: #5a7f11;
+}
+
+.chat_toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.chat_toggle .arrow {
+  display: inline-block;
 }
 
 .chat_header {
