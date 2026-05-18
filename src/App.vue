@@ -41,7 +41,8 @@ async function sendMessage() {
 function adjustChatBottom() {
   const box = document.querySelector<HTMLElement>('.text_box');
   if (!box) return;
-  const footer = document.querySelector<HTMLElement>('footer') || document.querySelector<HTMLElement>('.footer') || document.getElementById('footer');
+  const footer = document.querySelector<HTMLElement>('#footer, footer.footer, .footer')
+    || document.querySelector<HTMLElement>('footer');
   let bottom = 16;
   if (footer) {
     try {
