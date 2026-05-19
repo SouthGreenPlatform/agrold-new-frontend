@@ -413,15 +413,15 @@ watch(query, (value) => {
           </div>
 
           <div v-if="selectedPattern" class="pattern-params">
-            <b style="font-size: 15px">Paramètres</b>
+            <b style="font-size: 15px">Settings</b>
             <div v-if="selectedPattern.params.length" class="pattern-params-list">
               <div v-for="(param, paramIndex) in selectedPattern.params" :key="paramIndex" class="pattern-param-row">
-                <label>Remplacer « {{ param }} » par :</label>
+                <label>Replace « {{ param }} » by :</label>
                 <input type="text" v-model="parameterValues[paramIndex]" />
               </div>
-              <button class="yasrbtn primary" type="button" @click="applyPatternReplacements">Appliquer</button>
+              <button class="yasrbtn primary" type="button" @click="applyPatternReplacements">Apply</button>
             </div>
-            <p v-else class="no-params">Aucun paramètre à remplacer pour ce pattern.</p>
+            <p v-else class="no-params">No settings to replace for this pattern.</p>
           </div>
         </div>
       </div>
