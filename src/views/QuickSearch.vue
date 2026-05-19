@@ -143,15 +143,12 @@ onMounted(async () => {
   min-height: calc(50vh - 22px);
   width: fit-content;
   height: fit-content;
-  /*overflow: hidden;*/
 }
 
 .canvas {
   position: relative;
   width: 100%;
   height: fit-content;
-  /*min-height: calc(100vh - 72px);
-  overflow: hidden;*/
 }
 
 .canvas canvas {

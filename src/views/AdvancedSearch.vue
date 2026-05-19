@@ -87,9 +87,6 @@ setTimeout(() => {
 @import '@/assets/css/search.css';
 @import '@/assets/css/jquery.dataTables.min.css';
 @import '@/assets/css/advSearch.css';
-/* @import '@/assets/sparql-editor/yasr.min.css'; */
-
-
 
 #graphViewResult {
   width: inherit;

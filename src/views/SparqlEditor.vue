@@ -1,48 +1,302 @@
-<script setup lang="js">
-import { addPlugin } from '@/assets/scripts/utils';
-import { A_GRO_LD_API_JSON_URL, WEB_APP_URL, FACETED_URL, SPAR_QL_ENDPOINT_URL, DEFAULT_API_FORMAT } from '../assets/scripts/config';
+<script setup lang="ts">
+import { computed, ref, watch, onMounted } from 'vue';
+import { SPAR_QL_ENDPOINT_URL } from '../assets/scripts/config';
+import { prefixes, queryPatterns } from '@/assets/scripts/querypatterns';
 import ArianThread from '@/components/shared/ArianThread.vue';
 
-const defaultQuery = `
-PREFIX agrold:<http://www.southgreen.fr/agrold/>
-SELECT * 
-WHERE{
-  GRAPH ?graph {
-  ?subject ?property ?object.
+const defaultQuery = `SELECT ?capital ?country WHERE {
+  ?country a dbo:Country ;
+           dbo:capital ?capitalCity ;
+           dbo:continent dbr:Europe .
+  ?capitalCity rdfs:label ?capital .
+  FILTER(LANG(?capital) = "fr")
 }
-filter(REGEX(?graph, CONCAT("^", str(agrold:))))
-} 
 LIMIT 10`;
 
-const variables = `
-  const A_GRO_LD_API_JSON_URL  = "${A_GRO_LD_API_JSON_URL}";
-  const SPAR_QL_ENDPOINT_URL = "${SPAR_QL_ENDPOINT_URL}";
-  const WEB_APP_URL = "${WEB_APP_URL}";
-  const FACETED_URL = "${FACETED_URL}";
-  const DEFAULT_API_FORMAT = "${DEFAULT_API_FORMAT}";
-  const SPARQL_ENDPOINT = "${SPAR_QL_ENDPOINT_URL}";
-  `;
-// Add plugins
+const endpoint = ref(SPAR_QL_ENDPOINT_URL || 'https://dbpedia.org/sparql');
+const format = ref('application/sparql-results+json');
+const timeout = ref('20000');
+const nlq = ref('');
+const query = ref(defaultQuery);
+const fileNameToSaveAs = ref('query.sparql');
+const activeTab = ref('json');
+const jsonOutput = ref('// The SPARQL results will be displayed here in JSON format');
+const tableOutput = ref('');
+const summaryOutput = ref("Le résumé LLM des résultats s'affichera ici après exécution.");
+const status = ref('Prêt');
+const statusState = ref('');
+const lastJSON = ref<unknown>(null);
+const showCommands = ref(false);
 
-addPlugin("/scripts/localStorage.js");
-addPlugin("/scripts/introjs/intro.js");
-addPlugin("/scripts/lib.js", variables);
-addPlugin("/sparql-editor/main1.js");
-addPlugin("/sparql-editor/yasr.bundled.min.js");
-addPlugin("/sparql-editor/yasqe.bundled.min.js");
-setTimeout(() => {
-  // console.log("Adding SPARQL Editor plugins", YASQE);
-  addPlugin("/sparql-editor/main3.js");
-}, 1000); // Wait for the DOM to be ready
+type SparqlRow = Record<string, { value?: string; type?: string }>;
 
-addPlugin("/scripts/querypatterns.js");
-addPlugin("/sparql-editor/main2.js");
+const formats = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'text/html', label: 'HTML' },
+  { value: 'application/vnd.ms-excel', label: 'Spreadsheet' },
+  { value: 'application/sparql-results+xml', label: 'XML' },
+  { value: 'application/sparql-results+json', label: 'JSON' },
+  { value: 'application/javascript', label: 'Javascript' },
+  { value: 'text/turtle', label: 'Turtle' },
+  { value: 'application/rdf+xml', label: 'RDF/XML' },
+  { value: 'text/plain', label: 'N-Triples' },
+  { value: 'text/csv', label: 'CSV' },
+  { value: 'text/tab-separated-values', label: 'TSV' }
+];
 
-addPlugin("/sparql-editor/d3.v3.min.js");
-addPlugin("/sparql-editor/d3sparql.js");
-addPlugin("/sparql-editor/dom-to-image.min.js");
-addPlugin("/sparql-editor/graphPlugin.js");
+const patterns = queryPatterns;
+const selectedPatternIdx = ref<number | null>(null);
+const parameterValues = ref<string[]>([]);
+const selectedPattern = computed(() => selectedPatternIdx.value !== null ? patterns[selectedPatternIdx.value] : null);
 
+function escapePatternValue(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function selectPattern(index: number) {
+  selectedPatternIdx.value = index;
+  const pattern = patterns[index];
+  query.value = prefixes + pattern.query;
+  parameterValues.value = [...pattern.params];
+  setStatus(`Pattern sélectionné : ${pattern.label}`, '');
+}
+
+function applyPatternReplacements() {
+  if (selectedPatternIdx.value === null) return;
+  const pattern = patterns[selectedPatternIdx.value];
+  let replacedQuery = pattern.query;
+  parameterValues.value.forEach((value, idx) => {
+    const original = pattern.params[idx] || '';
+    const regex = new RegExp(escapePatternValue(original), 'g');
+    replacedQuery = replacedQuery.replace(regex, value);
+  });
+  query.value = prefixes + replacedQuery;
+  setStatus('Paramètres appliqués au pattern', '');
+}
+
+function setStatus(message: string, state = '') {
+  status.value = message;
+  statusState.value = state;
+}
+
+function switchTab(name: string) {
+  activeTab.value = name;
+}
+
+function syntaxHL(value: unknown) {
+  const s = JSON.stringify(value, null, 2);
+  return s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (m) => {
+    if (/^"/.test(m)) {
+      if (/:$/.test(m)) return `<span class="key">${m}</span>`;
+      return `<span class="str">${m}</span>`;
+    }
+    if (/true|false/.test(m)) return `<span class="bool">${m}</span>`;
+    if (/null/.test(m)) return `<span class="null">${m}</span>`;
+    return `<span class="num">${m}</span>`;
+  });
+}
+
+function renderTable(data: unknown) {
+  const container = data as { head?: { vars?: string[] }; results?: { bindings?: unknown[] } } | null;
+  const vars = container?.head?.vars || [];
+  const bindings = container?.results?.bindings || [];
+  if (!vars.length) {
+    tableOutput.value = '<p style="color:var(--color-text-secondary);font-family:var(--font-sans);font-size:13px;padding:8px">Aucune variable détectée.</p>';
+    return;
+  }
+
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-sans)">';
+  html += '<thead><tr>' + vars.map((v: string) => `<th style="text-align:left;padding:7px 10px;border-bottom:1px solid var(--color-border-secondary);font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary)">${v}</th>`).join('') + '</tr></thead>';
+  html += '<tbody>';
+  bindings.slice(0, 50).forEach((row: unknown) => {
+    const rowData = row as SparqlRow;
+    html += '<tr style="border-bottom:0.5px solid var(--color-border-tertiary)">';
+    vars.forEach((v: string) => {
+      const cell = rowData[v] || {};
+      const val = cell.value || '';
+      const isUri = cell.type === 'uri';
+      const display = isUri ? `<a href="${val}" style="color:var(--color-text-info);text-decoration:none">${String(val).split('/').pop()}</a>` : String(val);
+      html += `<td style="padding:6px 10px;color:var(--color-text-primary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${display}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  if (bindings.length > 50) {
+    html += `<p style="font-family:var(--font-sans);font-size:12px;color:var(--color-text-secondary);margin-top:8px">${bindings.length - 50} résultats supplémentaires non affichés.</p>`;
+  }
+  tableOutput.value = html;
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+async function generateSPARQL() {
+  const question = nlq.value.trim();
+  if (!question) {
+    setStatus('Entrez une question en langage naturel.', 'error');
+    return;
+  }
+
+  setStatus('Génération SPARQL via LLM…', 'loading');
+  try {
+    const response = await fetch('/api/llm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `Génère uniquement la requête SPARQL pour l'endpoint ${endpoint.value} à partir de la question suivante : ${question}`
+      })
+    });
+
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const data = await response.json();
+    const sparql = data.reply || data.choices?.[0]?.message?.content || String(data);
+    query.value = sparql.replace(/```sparql|```/gi, '').trim();
+    setStatus('Requête générée', '');
+  } catch (error) {
+    setStatus(`Erreur API: ${getErrorMessage(error)}`, 'error');
+  }
+}
+
+async function executeSPARQL() {
+  const endpointValue = endpoint.value.trim();
+  const sparql = query.value.trim();
+  if (!endpointValue || !sparql) {
+    setStatus('Endpoint et requête requis.', 'error');
+    return;
+  }
+
+  setStatus('Exécution SPARQL…', 'loading');
+  if (format.value === 'application/sparql-results+json') {
+    try {
+      const url = `${endpointValue}?query=${encodeURIComponent(sparql)}&timeout=${encodeURIComponent(timeout.value)}&format=json`;
+      const response = await fetch(url, { headers: { Accept: 'application/sparql-results+json' } });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      lastJSON.value = data;
+      jsonOutput.value = syntaxHL(data);
+      renderTable(data);
+      setStatus(`${data.results?.bindings?.length ?? 0} résultat(s)`, '');
+      activeTab.value = 'json';
+    } catch (error) {
+      setStatus(`Erreur : ${getErrorMessage(error)}`, 'error');
+    }
+  } else {
+    downloadResults();
+  }
+}
+
+function downloadResults() {
+  const endpointValue = endpoint.value.trim();
+  const sparql = query.value.trim();
+  if (!endpointValue || !sparql) {
+    setStatus('Endpoint et requête requis.', 'error');
+    return;
+  }
+  const url = `${endpointValue}?query=${encodeURIComponent(sparql)}&timeout=${encodeURIComponent(timeout.value)}&format=${encodeURIComponent(format.value)}`;
+  window.open(url, '_blank');
+  setStatus('Résultats ouverts dans un nouvel onglet', '');
+}
+
+async function explainQuery() {
+  const sparql = query.value.trim();
+  if (!sparql) {
+    setStatus('Aucune requête à expliquer.', 'error');
+    return;
+  }
+
+  setStatus('Explication en cours…', 'loading');
+  activeTab.value = 'summary';
+  summaryOutput.value = '…';
+  try {
+    const response = await fetch('/api/llm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `Explique cette requête SPARQL de manière claire et concise en français : ${sparql}`
+      })
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const data = await response.json();
+    summaryOutput.value = data.reply || data.choices?.[0]?.message?.content || 'Explication indisponible.';
+    setStatus('Explication générée', '');
+  } catch (error) {
+    summaryOutput.value = `Erreur : ${getErrorMessage(error)}`;
+    setStatus('Erreur', 'error');
+  }
+}
+
+async function copyJSON() {
+  if (!lastJSON.value) {
+    setStatus('Exécutez d\'abord une requête.', 'error');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(lastJSON.value, null, 2));
+    setStatus('JSON copié dans le presse-papier', '');
+  } catch {
+    setStatus('Copie manuelle requise', 'error');
+  }
+}
+
+function saveTextAsFile() {
+  if (!fileNameToSaveAs.value) {
+    setStatus('Nom de fichier requis.', 'error');
+    return;
+  }
+  const blob = new Blob([query.value], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = fileNameToSaveAs.value;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  setStatus('Requête enregistrée', '');
+}
+
+function loadFileAsText(file: File | null) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    query.value = String(reader.result || '');
+    setStatus('Requête chargée', '');
+  };
+  reader.readAsText(file);
+}
+
+function onFileSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  loadFileAsText(input.files?.[0] || null);
+}
+
+function loadTextFromSelectedFile() {
+  const input = document.getElementById('fileToLoad') as HTMLInputElement | null;
+  if (!input?.files?.length) return;
+  loadFileAsText(input.files[0]);
+}
+
+function toggleCommands() {
+  showCommands.value = !showCommands.value;
+}
+
+function startIntro() {
+  const intro = (window as Window & { introJs?: unknown }).introJs;
+  if (typeof intro === 'function') {
+    intro().setOption('showProgress', true).start();
+    return;
+  }
+  setStatus('introJs non disponible', 'error');
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('sparql-query');
+  if (saved) query.value = saved;
+});
+
+watch(query, (value) => {
+  localStorage.setItem('sparql-query', value);
+});
 </script>
 
 <template>
@@ -55,33 +309,34 @@ addPlugin("/sparql-editor/graphPlugin.js");
     </template>
   </ArianThread>
 
-  <div class="foowrap">
-    <div class="d-flex flex-column align-items-center justify-content-center ml-3 mr-3">
+  <div class="foowrap sparql-editor-page">
+    <div class="intro-banner">
       <span>
-        Select a sample query and run it. The sample query could be used to modify the parameters
-        accordingly.
+        Select a sample query and run it. The sample query could be used to modify the parameters accordingly.
         Alternatively, enter SPARQL code in the query box below.
-        <button href="javascript:void(0);" onclick="javascript:introJs().setOption('showProgress', true).start();"
-          class="yasrbtn" style="background-color: #00B5AD!important; color: white; font-weight: bold">
-          Watch how!
-        </button>
       </span>
-      <hr />
+      <button class="yasrbtn primary" type="button" @click="startIntro">Watch how!</button>
     </div>
+
     <div class="container-fluid only-queries">
-      <div id=" main" style="overflow:auto;">
+      <div id="main" class="query-panel">
         <div id="sparql">
-          <div id="cmd-container" data-step="6" data-intro="Hand over to see what shortcuts are available">
+          <div class="commands-header">
+            <button class="yasrbtn" type="button" @click="toggleCommands">
+              {{ showCommands ? 'Hide commandes' : 'Show commandes' }}
+            </button>
+          </div>
+
+          <div id="cmd-container" v-show="showCommands" data-step="6" data-intro="Hand over to see what shortcuts are available">
             <b id="cmds">KEYBOARD COMMANDS</b>
-            <ul id="cmds" style="display: none; font-weight: bold">
+            <ul id="cmds-list">
               <li><code>[Ctrl|Cmd]-Space</code>: Trigger Autocompletion</li>
-              <li><code>[Ctrl|Cmd]-D</code> and <code>[Ctrl|Cmd]-D</code>: Delete current/selected
-                line(s)</li>
+              <li><code>[Ctrl|Cmd]-D</code> and <code>[Ctrl|Cmd]-D</code>: Delete current/selected line(s)</li>
               <li><code>[Ctrl|Cmd]-/</code>: Comment or uncomment current/selected line(s)</li>
               <li><code>[Ctrl|Cmd]-Alt-Down</code>: Copy line down</li>
               <li><code>[Ctrl|Cmd]-Alt-Up</code>: Copy line up</li>
               <li><code>[Ctrl|Cmd]-Shift-F</code>: Auto-format/indent selected lines</li>
-              <li><code>[Ctrl|Cmd]-]</code>: Indent current/selected line(s) more</li>
+              <li><code>[Ctrl|Cmd>-]</code>: Indent current/selected line(s) more</li>
               <li><code>[Ctrl|Cmd]-[</code>: Indent current/selected line(s) less</li>
               <li><code>[Ctrl|Cmd]-S</code>: Save current query in local storage</li>
               <li><code>[Ctrl|Cmd]-Enter</code>: Execute Query</li>
@@ -89,84 +344,105 @@ addPlugin("/sparql-editor/graphPlugin.js");
               <li><code>Esc</code>: Leave full-screen</li>
             </ul>
           </div>
-          <div id="parameters">
+
+          <div id="parameters"></div>
+
+          <div class="field-block">
+            <label for="nlq"><b style="font-size: 15px">Question (LLM)</b></label>
+            <input id="nlq" type="text" v-model="nlq" placeholder="Formulate your query as a question" />
           </div>
-          <form action="http://agrold.southgreen.fr/sparql" method="get" data-step="2"
-            data-intro="watch & edit its query here!">
-            <label for="query"><b style="font-size: 15px">Query Text</b></label><br />
-            <textarea rows="15" cols="76" name="query" id="query" onchange="format_select(this)"
-              onkeyup="format_select(this)"></textarea>
-            <hr />
-            <table width="100%">
-              <tbody>
-                <tr>
-                  <td style="background-color: #d1d1d1">
-                    <label for="timeout" class="n">Execution timeout</label>
-                    <input name="timeout" class="yasrbtn" id="timeout" type="text" value="20000"
-                      onchange="//setTimeout(this)" style="width:70px" /> milliseconds
-                    <span class="info"><i>(values less than 1000 are ignored)</i></span>
-                  </td>
-                  <td align="right" style="background-color: #f7f7f7" data-step="5"
-                    data-intro="or download directly your results in the format of your choice">
-                    <label for="format" class="n">Results Format</label>
-                    <select name="format" id="format" onchange="format_change(this)">
-                      <option value="auto">Auto</option>
-                      <option value="text/html">HTML</option>
-                      <option value="application/vnd.ms-excel">Spreadsheet</option>
-                      <option value="application/sparql-results+xml">XML</option>
-                      <option value="application/sparql-results+json">JSON</option>
-                      <option value="application/javascript">Javascript</option>
-                      <option value="text/turtle">Turtle</option>
-                      <option value="application/rdf+xml" selected="selected">RDF/XML</option>
-                      <option value="text/plain">N-Triples</option>
-                      <option value="text/csv">CSV</option>
-                      <option value="text/tab-separated-values">TSV</option>
-                    </select>
-                    <input type="submit" class="yasrbtn" value="Download Results" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </form>
-          <div>
-            <table width="100%">
-              <tbody>
-                <tr>
-                  <td align="left" data-step="7" data-intro="You can save your query in a file and then ... "
-                    style="background-color: #f7f7f7">Filename to Save As:
-                    <input id="inputFileNameToSaveAs" value="query.sparql"></input>
-                    <button class="yasrbtn"
-                      onclick="saveTextAsFile(document.getElementById('inputFileNameToSaveAs').value);">Save
-                      Query</button>
-                  </td>
-                  <td align="right" data-step="8"
-                    data-intro=" Load it (or any other text file containing a sparql query) later"
-                    style="background-color: #d1d1d1">
-                    <input type="file" id="fileToLoad" class="yasrbtn">
-                    <button class="yasrbtn" onclick="loadFileAsText(document.getElementById('fileToLoad').files[0]);">
-                      Load Selected Query File
-                    </button>
-                  </td>
-                </tr>
-                <tr id="historyRow" class="d-none">
-                  <td>
-                    <button id="btnHistory" class="yasrbtn" data-toggle="modal" data-target="#historyModal">
-                      Select a previous query
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="options-grid">
+            <div class="option-box">
+              <label for="endpoint"><b>Endpoint SPARQL</b></label>
+              <input id="endpoint" type="text" v-model="endpoint" placeholder="https://.../sparql" />
+            </div>
+            <div class="option-box">
+              <label for="timeout"><b>Execution timeout</b></label>
+              <input id="timeout" type="text" class="yasrbtn" v-model="timeout" style="width:70px" /> milliseconds
+            </div>
+            <div class="option-box">
+              <label for="format"><b>Results Format</b></label>
+              <select id="format" v-model="format">
+                <option v-for="item in formats" :key="item.value" :value="item.value">{{ item.label }}</option>
+              </select>
+            </div>
           </div>
+
+          <div class="field-block">
+            <label for="query"><b style="font-size: 15px">Query Text</b></label>
+            <textarea id="query" rows="15" cols="76" v-model="query"></textarea>
+          </div>
+
+          <div class="toolbar-panel">
+            <button class="btn btn-primary" type="button" @click="generateSPARQL"><i class="ti ti-wand"></i> Generate with LLM ↗</button>
+            <button class="btn" type="button" @click="executeSPARQL"><i class="ti ti-player-play"></i> Execute</button>
+            <button class="btn" type="button" @click="explainQuery"><i class="ti ti-bulb"></i> Explain ↗</button>
+            <button class="btn" type="button" @click="copyJSON"><i class="ti ti-copy"></i> Copy JSON</button>
+            <button class="btn" type="button" @click="downloadResults"><i class="ti ti-download"></i> Download</button>
+          </div>
+
+          <div class="status-bar">
+            <span :class="['dot', statusState]" aria-hidden="true"></span>
+            {{ status }}
+          </div>
+
+          <div class="save-load-row">
+            <div class="save-box">
+              Filename to Save As:
+              <input id="inputFileNameToSaveAs" v-model="fileNameToSaveAs" />
+              <button class="yasrbtn" type="button" @click="saveTextAsFile">Save Query</button>
+            </div>
+            <div class="load-box">
+              <input type="file" id="fileToLoad" class="yasrbtn" @change="onFileSelected" />
+              <button class="yasrbtn" type="button" @click="loadTextFromSelectedFile">Load Selected Query File</button>
+            </div>
+          </div>
+
         </div>
+
         <div id="patternslist" data-step="1" data-intro="Select a <b>question</b> here and then ...">
           <b style="font-size: 15px">Query Patterns</b>
+          <div class="pattern-list">
+            <div v-for="(pattern, index) in patterns" :key="index" class="pattern-item">
+              <div class="pattern-label" v-html="pattern.label"></div>
+              <button class="yasrbtn" type="button" @click="selectPattern(index)">
+                {{ selectedPatternIdx === index ? 'Selected' : 'Choose' }}
+              </button>
+            </div>
+          </div>
+
+          <div v-if="selectedPattern" class="pattern-params">
+            <b style="font-size: 15px">Paramètres</b>
+            <div v-if="selectedPattern.params.length" class="pattern-params-list">
+              <div v-for="(param, paramIndex) in selectedPattern.params" :key="paramIndex" class="pattern-param-row">
+                <label>Remplacer « {{ param }} » par :</label>
+                <input type="text" v-model="parameterValues[paramIndex]" />
+              </div>
+              <button class="yasrbtn primary" type="button" @click="applyPatternReplacements">Appliquer</button>
+            </div>
+            <p v-else class="no-params">Aucun paramètre à remplacer pour ce pattern.</p>
+          </div>
         </div>
       </div>
+
       <div class="container-rst" style="width: 100%">
         <div id="yasr" data-step="4" data-intro="watch your results ... ">
           <div class="info_title" style="font-size: 19px">Results</div>
-          <canvas id="hiddenCanvas"></canvas>
+          <div class="tabs">
+            <button :class="['tab', { active: activeTab === 'json' }]" type="button" @click="switchTab('json')">JSON brut</button>
+            <button :class="['tab', { active: activeTab === 'table' }]" type="button" @click="switchTab('table')">Table</button>
+            <button :class="['tab', { active: activeTab === 'summary' }]" type="button" @click="switchTab('summary')">LLM Resume</button>
+          </div>
+          <div id="pane-json" class="pane" :class="{ active: activeTab === 'json' }">
+            <div class="json-output" v-html="jsonOutput"></div>
+          </div>
+          <div id="pane-table" class="pane" :class="{ active: activeTab === 'table' }">
+            <div class="json-output" v-html="tableOutput"></div>
+          </div>
+          <div id="pane-summary" class="pane" :class="{ active: activeTab === 'summary' }">
+            <div class="summary-card">{{ summaryOutput }}</div>
+          </div>
         </div>
         <div id="push"></div>
       </div>
@@ -178,8 +454,7 @@ addPlugin("/sparql-editor/graphPlugin.js");
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Pick a query</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-              aria-hidden="true">&times;</span></button>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body text-left" id="history"></div>
       </div>
@@ -189,13 +464,9 @@ addPlugin("/sparql-editor/graphPlugin.js");
   <div class="debugme"></div>
 </template>
 
-<style>
+<style scoped>
 @import '@/assets/sparql-editor/yasqe.min.css';
 @import '@/assets/sparql-editor/yasr.min.css';
 @import '@/assets/introjs/introjs.css';
 @import '@/assets/sparql-editor/main.css';
-
-.only-queries {
-  width: 1300px !important;
-}
 </style>

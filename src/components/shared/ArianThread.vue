@@ -43,8 +43,6 @@
     color: #858d85;
 }
 
-/* Media Queries */
-
 @media (max-width: 600px) {
     .arian-thread {
         height: 40px;

@@ -127,13 +127,6 @@ onMounted(() => {
 </template>
 
 <style>
-/* @import '@/assets/css/hp.css'; */
-/*
-#fullPage {
-  width: 100rem !important;
-  height: 100%;
-  margin-top: -12rem;
-} */
 
 h1 {
   color: white;
@@ -149,9 +142,6 @@ body {
   width: 100% !important;
   min-height: 100vh;
   position: fixed !important;
-  /*position: relative !important;*/
-  /*overflow-x: hidden;
-  overflow-y: auto;*/
   bottom: 0;
   left: 0;
 }
@@ -174,7 +164,6 @@ body {
 #section1 {
   position: relative;
   left: 0;
-  /* margin-bottom: 0.5rem; */
   height: 100% !important;
   width: 100% !important;
   overflow: auto;
@@ -192,17 +181,6 @@ body {
   }
 }
 
-
-/*
-.router-view {
-  padding-top: 0rem !important;
-  padding-bottom: 0rem !important;
-} */
-
-/* .footer {
-  display: none !important;
-} */
-
 .footer-home {
   padding-bottom: 5% !important;
 }
@@ -210,7 +188,6 @@ body {
 .centering-fx {
   position: relative;
   margin-top: 10% !important;
-  /* padding-bottom: 0rem !important; */
 }
 
 .home-set {

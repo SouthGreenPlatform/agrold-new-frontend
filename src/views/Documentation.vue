@@ -441,7 +441,6 @@ div.fixed li {
 
 div.fixed li:before {
   content: "\A4\ ";
-  /* caractère UTF-8 */
 }
 
 div.main {}

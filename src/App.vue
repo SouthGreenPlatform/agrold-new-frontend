@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/shared/Header.vue';
 import Footer from './components/shared/Footer.vue';
+import ChatBox from './components/shared/ChatBox.vue';
 
 declare global {
   interface Window {
@@ -97,21 +98,15 @@ onBeforeUnmount(() => {
     <div class="row">
       <Footer />
     </div>
-
+    <!--
     <div class="chat_shell" :class="{ open: !collapsed, animating: animating }" :aria-expanded="!collapsed">
-      <div class="text_box" :aria-hidden="collapsed">
-        <div class="chat_header">Assistant</div>
-        <div class="chat_messages">
-          <div v-for="(m, i) in chatMessages" :key="i" :class="['chat_msg', m.role]">
-            <div class="msg_role">{{ m.role === 'user' ? 'You' : (m.role === 'assistant' ? 'Assistant' : 'System') }}</div>
-            <div class="msg_text">{{ m.text }}</div>
-          </div>
-        </div>
-        <div class="chat_input">
-          <textarea v-model="chatInput" @keydown.enter.prevent="sendMessage" :disabled="collapsed" placeholder="Enter a message..."></textarea>
-          <button @click="sendMessage" :disabled="collapsed || chatLoading">{{ chatLoading ? '...' : 'Send' }}</button>
-        </div>
-      </div>
+      <ChatBox
+        :messages="chatMessages"
+        v-model="chatInput"
+        :chatLoading="chatLoading"
+        :collapsed="collapsed"
+        @send-message="sendMessage"
+      />
       <button
         class="chat_toggle"
         @click="toggleChat"
@@ -120,7 +115,7 @@ onBeforeUnmount(() => {
       >
         <span class="arrow">{{ collapsed ? '←' : '→' }}</span>
       </button>
-    </div>
+    </div>-->
   </div>
 </template>
 
@@ -135,6 +130,7 @@ h1 {
   padding-bottom: 8rem;
 }
 
+/*
 .chat_shell {
   --chat-width: min(360px, 90vw);
   position: fixed;
@@ -161,20 +157,6 @@ h1 {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-}
-
-.text_box {
-  width: var(--chat-width);
-  max-height: calc(100vh - 32px);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px 0 0 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-  overflow: hidden;
-  font-family: inherit;
 }
 
 .chat_toggle {
@@ -206,28 +188,6 @@ h1 {
 .chat_toggle .arrow {
   display: inline-block;
 }
+*/
 
-.chat_header {
-  padding: 8px 12px;
-  background: #719c15;
-  color: white;
-  font-weight: 600;
-}
-
-.chat_messages {
-  padding: 8px;
-  overflow-y: auto;
-  flex: 1 1 auto;
-  background: #f7f7f7;
-}
-
-.chat_msg { margin-bottom: 8px; }
-.chat_msg .msg_role { font-size: 11px; color: #666; margin-bottom: 2px; }
-.chat_msg.user .msg_text { background: #e1feec; }
-.chat_msg.assistant .msg_text { background: #fff; }
-.msg_text { padding: 8px; border-radius: 6px; white-space: pre-wrap; }
-
-.chat_input { display:flex; gap:8px; padding:8px; border-top:1px solid #eee; }
-.chat_input textarea { flex:1 1 auto; min-height:40px; max-height:120px; resize:vertical; padding:8px; }
-.chat_input button { padding:8px 12px; }
 </style>

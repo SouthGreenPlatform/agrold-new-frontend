@@ -6,60 +6,57 @@
     font-size: 25px;
     color: #b3b3b3;
   }
-  
+
   .info_title {
     font-weight: bold;
     font-size: 25px;
     color: #b3b3b3;
   }
-  
+
   .active-p {
     color: #858d85;
   }
-  
+
   .foowrap {
     position: relative;
     min-height: 100%;
   }
-  
+
   #sparql {
-    width: 62%;
+    width: 100%;
     float: left;
     border-radius: 5px;
-    /*ackground: #DDD;*/
     padding-top: 15px;
     position: relative;
     border: 2px solid #3cb0fd !important;
+
   }
-  
+
   #patternslist {
     overflow-y: auto;
-    width: 34%;
+    width: 100%;
     float: right;
     min-height: 420px;
     border-radius: 5px;
-    /*ackground: #ECDCCE;*/
     padding: 5px;
     border: 2px solid #00B5AD !important;
   }
-  
+
   h4 {
     font-weight: bolder;
   }
-  
+
   form {
-    /*ackground-color: #f4f4f4;*/
     font-size: 95%;
     width: 98%;
     padding: 5px
   }
-  
+
   input.aparameter {
     color: #085;
-    /*ont-family:monospace;*/
     width: 50%;
   }
-  
+
   #cmd-container {
     background: #3cb0fd !important;
     color: white;
