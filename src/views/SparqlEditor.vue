@@ -22,8 +22,8 @@ const fileNameToSaveAs = ref('query.sparql');
 const activeTab = ref('json');
 const jsonOutput = ref('// The SPARQL results will be displayed here in JSON format');
 const tableOutput = ref('');
-const summaryOutput = ref("Le résumé LLM des résultats s'affichera ici après exécution.");
-const status = ref('Prêt');
+const summaryOutput = ref("The LLM resume will be displayed here after execution.");
+const status = ref('Ready');
 const statusState = ref('');
 const lastJSON = ref<unknown>(null);
 const showCommands = ref(false);
@@ -58,7 +58,7 @@ function selectPattern(index: number) {
   const pattern = patterns[index];
   query.value = prefixes + pattern.query;
   parameterValues.value = [...pattern.params];
-  setStatus(`Pattern sélectionné : ${pattern.label}`, '');
+  setStatus(`Pattern selected : ${pattern.label}`, '');
 }
 
 function applyPatternReplacements() {
@@ -71,7 +71,7 @@ function applyPatternReplacements() {
     replacedQuery = replacedQuery.replace(regex, value);
   });
   query.value = prefixes + replacedQuery;
-  setStatus('Paramètres appliqués au pattern', '');
+  setStatus('Settings applied to the pattern', '');
 }
 
 function setStatus(message: string, state = '') {
@@ -135,17 +135,17 @@ function getErrorMessage(error: unknown) {
 async function generateSPARQL() {
   const question = nlq.value.trim();
   if (!question) {
-    setStatus('Entrez une question en langage naturel.', 'error');
+    setStatus('Enter a question in natural langage.', 'error');
     return;
   }
 
-  setStatus('Génération SPARQL via LLM…', 'loading');
+  setStatus('Generate SPARQL from LLM…', 'loading');
   try {
     const response = await fetch('/api/llm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: `Génère uniquement la requête SPARQL pour l'endpoint ${endpoint.value} à partir de la question suivante : ${question}`
+        message: `Generate onlu the SPARQL request for the endpoint ${endpoint.value} based of the following question : ${question}`
       })
     });
 
@@ -153,9 +153,9 @@ async function generateSPARQL() {
     const data = await response.json();
     const sparql = data.reply || data.choices?.[0]?.message?.content || String(data);
     query.value = sparql.replace(/```sparql|```/gi, '').trim();
-    setStatus('Requête générée', '');
+    setStatus('Request generated', '');
   } catch (error) {
-    setStatus(`Erreur API: ${getErrorMessage(error)}`, 'error');
+    setStatus(`Error API: ${getErrorMessage(error)}`, 'error');
   }
 }
 
@@ -163,7 +163,7 @@ async function executeSPARQL() {
   const endpointValue = endpoint.value.trim();
   const sparql = query.value.trim();
   if (!endpointValue || !sparql) {
-    setStatus('Endpoint et requête requis.', 'error');
+    setStatus('Endpoint and request requiered.', 'error');
     return;
   }
 
@@ -180,7 +180,7 @@ async function executeSPARQL() {
       setStatus(`${data.results?.bindings?.length ?? 0} résultat(s)`, '');
       activeTab.value = 'json';
     } catch (error) {
-      setStatus(`Erreur : ${getErrorMessage(error)}`, 'error');
+      setStatus(`Error : ${getErrorMessage(error)}`, 'error');
     }
   } else {
     downloadResults();
@@ -191,22 +191,22 @@ function downloadResults() {
   const endpointValue = endpoint.value.trim();
   const sparql = query.value.trim();
   if (!endpointValue || !sparql) {
-    setStatus('Endpoint et requête requis.', 'error');
+    setStatus('Endpoint and request needed.', 'error');
     return;
   }
   const url = `${endpointValue}?query=${encodeURIComponent(sparql)}&timeout=${encodeURIComponent(timeout.value)}&format=${encodeURIComponent(format.value)}`;
   window.open(url, '_blank');
-  setStatus('Résultats ouverts dans un nouvel onglet', '');
+  setStatus('Results opened in a new tab', '');
 }
 
 async function explainQuery() {
   const sparql = query.value.trim();
   if (!sparql) {
-    setStatus('Aucune requête à expliquer.', 'error');
+    setStatus('No request to explain.', 'error');
     return;
   }
 
-  setStatus('Explication en cours…', 'loading');
+  setStatus('Explaination in progress…', 'loading');
   activeTab.value = 'summary';
   summaryOutput.value = '…';
   try {
@@ -214,36 +214,36 @@ async function explainQuery() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: `Explique cette requête SPARQL de manière claire et concise en français : ${sparql}`
+        message: `Explain this SPARQL request clearly and shortly : ${sparql}`
       })
     });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     const data = await response.json();
-    summaryOutput.value = data.reply || data.choices?.[0]?.message?.content || 'Explication indisponible.';
-    setStatus('Explication générée', '');
+    summaryOutput.value = data.reply || data.choices?.[0]?.message?.content || 'Explaination unavailable.';
+    setStatus('Explaination generated', '');
   } catch (error) {
-    summaryOutput.value = `Erreur : ${getErrorMessage(error)}`;
-    setStatus('Erreur', 'error');
+    summaryOutput.value = `Error : ${getErrorMessage(error)}`;
+    setStatus('Error', 'error');
   }
 }
 
 async function copyJSON() {
   if (!lastJSON.value) {
-    setStatus('Exécutez d\'abord une requête.', 'error');
+    setStatus('Execute a request first.', 'error');
     return;
   }
 
   try {
     await navigator.clipboard.writeText(JSON.stringify(lastJSON.value, null, 2));
-    setStatus('JSON copié dans le presse-papier', '');
+    setStatus('JSON copied in the clipboard', '');
   } catch {
-    setStatus('Copie manuelle requise', 'error');
+    setStatus('Manual copy requiered', 'error');
   }
 }
 
 function saveTextAsFile() {
   if (!fileNameToSaveAs.value) {
-    setStatus('Nom de fichier requis.', 'error');
+    setStatus('File name requiered.', 'error');
     return;
   }
   const blob = new Blob([query.value], { type: 'text/plain' });
@@ -252,7 +252,7 @@ function saveTextAsFile() {
   link.download = fileNameToSaveAs.value;
   link.click();
   URL.revokeObjectURL(link.href);
-  setStatus('Requête enregistrée', '');
+  setStatus('Request registered', '');
 }
 
 function loadFileAsText(file: File | null) {
@@ -260,7 +260,7 @@ function loadFileAsText(file: File | null) {
   const reader = new FileReader();
   reader.onload = () => {
     query.value = String(reader.result || '');
-    setStatus('Requête chargée', '');
+    setStatus('Request loaded', '');
   };
   reader.readAsText(file);
 }
@@ -286,7 +286,7 @@ function startIntro() {
     intro().setOption('showProgress', true).start();
     return;
   }
-  setStatus('introJs non disponible', 'error');
+  setStatus('introJs no available', 'error');
 }
 
 onMounted(() => {
