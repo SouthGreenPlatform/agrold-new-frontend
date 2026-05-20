@@ -27,6 +27,19 @@ const status = ref('Ready');
 const statusState = ref('');
 const lastJSON = ref<unknown>(null);
 const showCommands = ref(false);
+const queryTextareaRef = ref<HTMLTextAreaElement | null>(null);
+const gutterRef = ref<HTMLDivElement | null>(null);
+
+const lineNumbers = computed(() => {
+  const count = query.value.split('\n').length;
+  return Array.from({ length: Math.max(15, count) }, (_, i) => i + 1);
+});
+
+function syncLineNumbersScroll() {
+  if (queryTextareaRef.value && gutterRef.value) {
+    gutterRef.value.scrollTop = queryTextareaRef.value.scrollTop;
+  }
+}
 
 type SparqlRow = Record<string, { value?: string; type?: string }>;
 
@@ -349,7 +362,10 @@ watch(query, (value) => {
 
           <div class="field-block">
             <label for="nlq"><b style="font-size: 15px">Question (LLM)</b></label>
-            <input id="nlq" type="text" v-model="nlq" placeholder="Formulate your query as a question" />
+            <div class="llm-field">
+              <input id="nlq" type="text" v-model="nlq" placeholder="Formulate your query as a question" />
+              <button class="btn btn-primary" type="button" @click="generateSPARQL"><i class="ti ti-wand"></i> Generate with LLM ↗</button>
+            </div>
           </div>
 
           <div class="options-grid">
@@ -371,15 +387,16 @@ watch(query, (value) => {
 
           <div class="field-block">
             <label for="query"><b style="font-size: 15px">Query Text</b></label>
-            <textarea id="query" rows="15" cols="76" v-model="query"></textarea>
+            <div class="query-editor">
+              <div class="line-gutter" ref="gutterRef">
+                <div v-for="line in lineNumbers" :key="line" class="line-number">{{ line }}</div>
+              </div>
+              <textarea id="query" rows="15" cols="76" v-model="query" ref="queryTextareaRef" @scroll="syncLineNumbersScroll"></textarea>
+            </div>
           </div>
 
           <div class="toolbar-panel">
-            <button class="btn btn-primary" type="button" @click="generateSPARQL"><i class="ti ti-wand"></i> Generate with LLM ↗</button>
             <button class="btn" type="button" @click="executeSPARQL"><i class="ti ti-player-play"></i> Execute</button>
-            <button class="btn" type="button" @click="explainQuery"><i class="ti ti-bulb"></i> Explain ↗</button>
-            <button class="btn" type="button" @click="copyJSON"><i class="ti ti-copy"></i> Copy JSON</button>
-            <button class="btn" type="button" @click="downloadResults"><i class="ti ti-download"></i> Download</button>
           </div>
 
           <div class="status-bar">
@@ -429,6 +446,11 @@ watch(query, (value) => {
       <div class="container-rst" style="width: 100%">
         <div id="yasr" data-step="4" data-intro="watch your results ... ">
           <div class="info_title" style="font-size: 19px">Results</div>
+          <div class="toolbar-panel">
+            <button class="btn" type="button" @click="explainQuery"><i class="ti ti-bulb"></i> Explain ↗</button>
+            <button class="btn" type="button" @click="copyJSON"><i class="ti ti-copy"></i> Copy JSON</button>
+            <button class="btn" type="button" @click="downloadResults"><i class="ti ti-download"></i> Download</button>
+          </div>
           <div class="tabs">
             <button :class="['tab', { active: activeTab === 'json' }]" type="button" @click="switchTab('json')">JSON brut</button>
             <button :class="['tab', { active: activeTab === 'table' }]" type="button" @click="switchTab('table')">Table</button>
