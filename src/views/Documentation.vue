@@ -57,31 +57,274 @@ $(document).ready(function () {
       <div class="container main">
         <p>This page provides a summary on the species, data sources and URI patterns.</p>
         <h4 class="dib" id="species">AgroLD includes data on the following species on: </h4>
-        <ul>
-          <li>Arabidopsis thaliana (NCBI Taxon ID: 3702)</li>
-          <li>Oryza species:
-            <ul>
-              <li>Oryza barthii (NCBI Taxon ID: 65489)</li>
-              <li>Oryza brachyantha (NCBI Taxon ID: 4533)</li>
-              <li>Oryza glaberrima (NCBI Taxon ID: 4538)</li>
-              <li>Oryza meridionalis (NCBI Taxon ID: 40149)</li>
-              <li>Oryza sativa (NCBI Taxon ID: 4530)
-                <ul>
-                  <li>Oryza sativa indica (NCBI Taxon ID: 39946)</li>
-                  <li>Oryza sativa japonica (NCBI Taxon ID: 39947)</li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li>Sorghum bicolor (NCBI Taxon ID: 4558)</li>
-          <li>Triticum species:
-            <ul>
-              <li>Triticum aestivum (NCBI Taxon ID: 4565)</li>
-              <li>Triticum urartu (NCBI Taxon ID: 4572)</li>
-            </ul>
-          </li>
-          <li>Zea mays (NCBI Taxon ID: 4577)</li>
-        </ul>
+
+        <table border="1" class="tg">
+          <thead>
+            <tr>
+              <th>Species name</th>
+              <th>Common name</th>
+              <th>Taxon ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Aegilops tauschii subsp. strangulata</td>
+              <td>rough-spike hard grass</td>
+              <td>200361</td>
+            </tr>
+            <tr>
+              <td>Amborella trichopoda</td>
+              <td>Amborella</td>
+              <td>13333</td>
+            </tr>
+            <tr>
+              <td>Ananas comosus</td>
+              <td>pineapple</td>
+              <td>4615</td>
+            </tr>
+            <tr>
+              <td>Arabidopsis halleri subsp. gemmifera</td>
+              <td></td>
+              <td>63677</td>
+            </tr>
+            <tr>
+              <td>Arabidopsis lyrata subsp. lyrata</td>
+              <td>Cardaminopsis lyrata</td>
+              <td>81972</td>
+            </tr>
+            <tr>
+              <td>Arabidopsis thaliana</td>
+              <td>thale cress</td>
+              <td>3702</td>
+            </tr>
+            <tr>
+              <td>Beta vulgaris ssp. vulgaris</td>
+              <td>sugar beet</td>
+              <td>3555</td>
+            </tr>
+            <tr>
+              <td>Brachypodium distachyon</td>
+              <td>stiff brome</td>
+              <td>15368</td>
+            </tr>
+            <tr>
+              <td>Brassica napus</td>
+              <td>rape</td>
+              <td>3708</td>
+            </tr>
+            <tr>
+              <td>Brassica oleracea var. oleracea</td>
+              <td>wild cabbage</td>
+              <td>109376</td>
+            </tr>
+            <tr>
+              <td>Brassica rapa</td>
+              <td>field mustard</td>
+              <td>3711</td>
+            </tr>
+            <tr>
+              <td>Citrus x clementina</td>
+              <td>clementine</td>
+              <td>85681</td>
+            </tr>
+            <tr>
+              <td>Coffea canephora</td>
+              <td>robusta coffee</td>
+              <td>49390</td>
+            </tr>
+            <tr>
+              <td>Daucus carota subsp. sativus</td>
+              <td>carrot</td>
+              <td>79200</td>
+            </tr>
+            <tr>
+              <td>Digitaria exilis</td>
+              <td>White fonio</td>
+              <td>1010633</td>
+            </tr>
+            <tr>
+              <td>Glycine max</td>
+              <td>soybean</td>
+              <td>3847</td>
+            </tr>
+            <tr>
+              <td>Gossypium raimondii</td>
+              <td>Peruvian cotton</td>
+              <td>29730</td>
+            </tr>
+            <tr>
+              <td>Helianthus annuus</td>
+              <td>domesticated sunflower</td>
+              <td>4232</td>
+            </tr>
+            <tr>
+              <td>Hordeum vulgare subsp. vulgare</td>
+              <td>two-rowed barley</td>
+              <td>112509</td>
+            </tr>
+            <tr>
+              <td>Malus domestica</td>
+              <td>apple</td>
+              <td>3750</td>
+            </tr>
+            <tr>
+              <td>Manihot esculenta</td>
+              <td>cassava</td>
+              <td>3983</td>
+            </tr>
+            <tr>
+              <td>Musa acuminata subsp. malaccensis</td>
+              <td>wild Malaysian banana</td>
+              <td>214687</td>
+            </tr>
+            <tr>
+              <td>Nicotiana attenuata</td>
+              <td>wild tobacco</td>
+              <td>49451</td>
+            </tr>
+            <tr>
+              <td>Olea Europaea</td>
+              <td>Mediterranean olive tree</td>
+              <td>158383</td>
+            </tr>
+            <tr>
+              <td>Oryza barthii</td>
+              <td>African wild rice</td>
+              <td>65489</td>
+            </tr>
+            <tr>
+              <td>Oryza brachyantha</td>
+              <td>malo sina</td>
+              <td>4533</td>
+            </tr>
+            <tr>
+              <td>Oryza glaberrima</td>
+              <td>African rice</td>
+              <td>4538</td>
+            </tr>
+            <tr>
+              <td>Oryza glumipatula</td>
+              <td></td>
+              <td>40148</td>
+            </tr>
+            <tr>
+              <td>Oryza longistaminata</td>
+              <td>long-staminate rice</td>
+              <td>4528</td>
+            </tr>
+            <tr>
+              <td>Oryza meridionalis</td>
+              <td>Australian wild rice</td>
+              <td>40149</td>
+            </tr>
+            <tr>
+              <td>Oryza nivara</td>
+              <td></td>
+              <td>4536</td>
+            </tr>
+            <tr>
+              <td>Oryza punctata</td>
+              <td>red rice</td>
+              <td>4537</td>
+            </tr>
+            <tr>
+              <td>Oryza rufipogon</td>
+              <td>common wild rice</td>
+              <td>4529</td>
+            </tr>
+            <tr>
+              <td>Oryza sativa Indica Group</td>
+              <td>long-grained rice</td>
+              <td>39946</td>
+            </tr>
+            <tr>
+              <td>Oryza sativa Japonica Group</td>
+              <td>Japanese rice</td>
+              <td>39947</td>
+            </tr>
+            <tr>
+              <td>Phaseolus vulgaris</td>
+              <td>common bean</td>
+              <td>3885</td>
+            </tr>
+            <tr>
+              <td>Prunus avium</td>
+              <td>Sweet cherry</td>
+              <td>42229</td>
+            </tr>
+            <tr>
+              <td>Prunus dulcis</td>
+              <td>almond</td>
+              <td>3755</td>
+            </tr>
+            <tr>
+              <td>Prunus persica</td>
+              <td>peach</td>
+              <td>3760</td>
+            </tr>
+            <tr>
+              <td>Saccharum spontaneum</td>
+              <td>wild sugarcane</td>
+              <td>62335</td>
+            </tr>
+            <tr>
+              <td>Setaria italica</td>
+              <td>foxtail millet</td>
+              <td>4555</td>
+            </tr>
+            <tr>
+              <td>Solanum lycopersicum</td>
+              <td>tomato</td>
+              <td>4081</td>
+            </tr>
+            <tr>
+              <td>Solanum tuberosum</td>
+              <td>potato</td>
+              <td>4113</td>
+            </tr>
+            <tr>
+              <td>Sorghum bicolor</td>
+              <td>sorghum</td>
+              <td>4558</td>
+            </tr>
+            <tr>
+              <td>Theobroma cacao</td>
+              <td>cacao</td>
+              <td>3641</td>
+            </tr>
+            <tr>
+              <td>Triticum aestivum</td>
+              <td>bread wheat</td>
+              <td>4565</td>
+            </tr>
+            <tr>
+              <td>Triticum dicoccoides</td>
+              <td>wild emmer wheat</td>
+              <td>85692</td>
+            </tr>
+            <tr>
+              <td>Triticum turgidum subsp. durum</td>
+              <td>durum wheat</td>
+              <td>4567</td>
+            </tr>
+            <tr>
+              <td>Triticum urartu</td>
+              <td>red wild einkorn wheat</td>
+              <td>4572</td>
+            </tr>
+            <tr>
+              <td>Vitis vinifera</td>
+              <td>wine grape</td>
+              <td>29760</td>
+            </tr>
+            <tr>
+              <td>Zea may</td>
+              <td>maize</td>
+              <td>4577</td>
+            </tr>
+          </tbody>
+        </table>
+
         <h4 class="dib" id="ontologies">Ontologies in AgroLD:</h4>
         <p>The OWL versions of the ontologies have been loaded to AgroLD. The original namespaces and URIs
           have been retained.
@@ -103,39 +346,45 @@ $(document).ready(function () {
             </tr>
             <tr>
               <td>Plant Ontology (PO)</td>
-              <td rowspan="3"><a href="http://planteome.org/" target="_blank">http://planteome.org/</a></td>
+              <td><a href="https://obofoundry.org/ontology/po.html" target="_blank">https://obofoundry.org/ontology/po.html</a></td>
               <td><a href="http://purl.obolibrary.org/obo/PO_0025131"
                   target="_blank">http://purl.obolibrary.org/obo/PO_0025131</a></td>
             </tr>
             <tr>
               <td>Plant Trait Ontology (TO)</td>
-              <td><a href="http://purl.obolibrary.org/obo/TO_0000387"
-                  target="_blank">http://purl.obolibrary.org/obo/TO_0000387</a></td>
+              <td><a href="https://obofoundry.org/ontology/to.html" target="_blank">https://obofoundry.org/ontology/to.html</a></td>
+              <td><a href="http://purl.obolibrary.org/obo/TO_0000391"
+                  target="_blank">http://purl.obolibrary.org/obo/TO_0000391</a></td>
             </tr>
             <tr>
               <td>Plant Environment Ontology (EO)</td>
+              <td><a href="https://obofoundry.org/ontology/eo.html" target="_blank">https://obofoundry.org/ontology/eo.html</a></td>
               <td><a href="http://purl.obolibrary.org/obo/EO_0007359"
                   target="_blank">http://purl.obolibrary.org/obo/EO_0007359</a></td>
             </tr>
             <tr>
               <td>Sequence Ontology (SO)</td>
-              <td rowspan="4"><a href="http://www.berkeleybop.org/ontologies/"
-                  target="_blank">http://www.berkeleybop.org/ontologies/</a></td>
+              <td><a href="https://obofoundry.org/ontology/so.html"
+                  target="_blank">https://obofoundry.org/ontology/so.html</a></td>
               <td><a href="http://purl.obolibrary.org/obo/SO_0000104"
                   target="_blank">http://purl.obolibrary.org/obo/SO_0000104</a></td>
             </tr>
             <tr>
               <td>Phenotype and Attribute Ontology (PATO)</td>
+              <td><a href="http://purl.obolibrary.org/obo/pato.owl"
+                  target="_blank">http://purl.obolibrary.org/obo/pato.owl</a></td>
               <td><a href="http://purl.obolibrary.org/obo/PATO_0000462"
                   target="_blank">http://purl.obolibrary.org/obo/PATO_0000462</a></td>
             </tr>
             <tr>
               <td>NCBI Taxonomy</td>
+              <td><a href="http://www.ncbi.nlm.nih.gov/taxonomy" target="_blank">http://www.ncbi.nlm.nih.gov/taxonomy</a></td>
               <td><a href="http://purl.obolibrary.org/obo/NCBITaxon_4565"
                   target="_blank">http://purl.obolibrary.org/obo/NCBITaxon_4565</a></td>
             </tr>
             <tr>
               <td>Evidence code Ontology</td>
+              <td><a href="http://purl.obolibrary.org/obo/eco.owl" target="_blank">http://purl.obolibrary.org/obo/eco.owl</a></td>
               <td><a href="http://purl.obolibrary.org/obo/ECO_0000033"
                   target="_blank">http://purl.obolibrary.org/obo/ECO_0000033</a></td>
             </tr>
@@ -178,23 +427,21 @@ $(document).ready(function () {
               <td></td>
             </tr>
             <tr>
-              <td>Oryza Tag Line</td>
-              <td>Database consists of phenotypic data resulting from the evaluation of the Génoplante rice insertion
-                line library.</td>
-              <td><a href="http://oryzatagline.cirad.fr" target="_blank">oryzatagline.cirad.fr</a></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>OryGenesDB</td>
-              <td>Database for sequence information resulting from the T-DNA and Ds flanking sequence tags FSTs. Also
-                contains information on cDNA full length, EST and Markers</td>
-              <td><a href="http://orygenesdb.cirad.fr" target="_blank">orygenesdb.cirad.fr</a></td>
-              <td></td>
-            </tr>
-            <tr>
               <td>TropGeneDB</td>
               <td>Database for genomic, genetic and phenotypic information about tropical crops.</td>
               <td><a href="http://tropgenedb.cirad.fr" target="_blank">tropgenedb.cirad.fr</a></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>PlantTFDB</td>
+              <td>Database for TF regulation information.</td>
+              <td><a href="https://planttfdb.gao-lab.org/" target="_blank">https://planttfdb.gao-lab.org/</a></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>StringDB</td>
+              <td>Database for Protein-Protein interactions.</td>
+              <td><a href="https://string-db.org/" target="_blank">https://string-db.org/</a></td>
               <td></td>
             </tr>
           </tbody>

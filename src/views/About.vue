@@ -17,8 +17,8 @@ import ArianThread from '@/components/shared/ArianThread.vue';
       <div class="container jump-top">
         <p>
           The Agronomic Linked Data project is supported by the <a href="https://www.southgreen.fr/" target="_blank">
-            SouthGreen Bioinformatics Platform</a> in collaboration with the Institut de Recherche pour le
-          Développement (IRD) and the Centre de coopération International en
+            SouthGreen Bioinformatics Platform</a> and <a href="https://www.i-trop.org/" target="_blank">
+            the i-Trop Bioinformatics Platform</a> in collaboration with the Institut of Research for Sustainable Development (IRD) and the Centre de coopération International en
           Recherche Agronomique pour le Développement (CIRAD).
 
         </p>
@@ -32,15 +32,17 @@ import ArianThread from '@/components/shared/ArianThread.vue';
           </p>
         </div>
         <div>
-          <p><b>Manuel Ruiz</b><br>
-            <i>Researcher, CIRAD</i><br>
-            <em>manuel[dot]ruiz[at]cirad[dot]fr</em><br>
+          <p><b>Bill Gates Happi Happi, PhD</b><br>
+            <i>Data science, DevOps and AI</i><br>
+            <i>Postdoc</i><br>
+            <em>bill[dot]happi[at]ird[dot]fr</em>
           </p>
         </div>
         <div>
-          <p><b>Bill Gates Happi Happi,</b><br>
-            <i>PhD student & Postdoc, IRD</i><br>
-            <em>bill[dot]happi[at]ird[dot]fr</em>
+          <p><b>Matisse Quilliec</b><br>
+            <i>Student</i><br>
+            <i>Web Developer, DevOps</i><br>
+            <em></em>
           </p>
         </div>
         <h4>Former members:</h4>
@@ -50,7 +52,12 @@ import ArianThread from '@/components/shared/ArianThread.vue';
             <em>yann[dot]pomie[at]ird[dot]fr</em>
           </p>
         </div>
-
+        <div>
+          <p><b>Manuel Ruiz</b><br>
+            <i>Researcher, CIRAD</i><br>
+            <em>manuel[dot]ruiz[at]cirad[dot]fr</em><br>
+          </p>
+        </div>
         <div>
           <p><b>Gildas Tagny,</b><br>
             <i>Engineer, INRA</i><br>
@@ -120,7 +127,7 @@ import ArianThread from '@/components/shared/ArianThread.vue';
         <div>
           <h4>Acknowledgements:</h4>
           <p>
-            The project is currently supported by CGIAR Rice CRP and The French Institute of Bioinformatics (IFB - <a
+            The project is currently supported by The French Institute of Bioinformatics (IFB - <a
               href="https://www.france-bioinformatique.fr" target="_blank"> https://www.france-bioinformatique.fr</a>)
 
             <br>
