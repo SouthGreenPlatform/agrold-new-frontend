@@ -142,7 +142,6 @@ function handleKeydown(event: KeyboardEvent) {
         </div>
         <div class="chat_messages" ref="messagesRef">
           <div v-for="(m, i) in store.messages" :key="i" class="chat_msg" :data-role="m.role">
-            <div v-if="m.role !== 'system'" class="avatar">{{ m.role === 'user' ? 'U' : 'A' }}</div>
             <div class="bubble" :class="m.role">
               <div class="bubble_text">{{ m.text }}</div>
               <div v-if="m.role === 'assistant' && looksLikeSparql(m.text)" class="bubble_actions">
@@ -270,7 +269,6 @@ h1 {color :#0f6912}
 .chat_msg { display:flex; gap:12px; align-items:flex-start; margin-bottom:18px }
 .chat_msg.assistant { justify-content:flex-start; }
 .chat_msg.user { justify-content:flex-end; }
-.chat_msg .avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#0f6912; color:#fff; font-weight:700; flex-shrink:0; }
 .bubble { max-width:78%; padding:16px 18px; border-radius:18px; white-space:pre-wrap; line-height:1.7; font-size:15px; box-shadow:0 8px 20px rgba(15,105,18,0.08); }
 .bubble.user { background:#0f6912; color:#ffffff; border-bottom-right-radius:4px; margin-left:auto; }
 .bubble.assistant { background:#ffffff; color:#13401a; border:1px solid rgba(15,105,18,0.16); border-bottom-left-radius:4px; }
