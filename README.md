@@ -32,6 +32,14 @@ npm run dev
 npm run build
 ```
 
+## LLM Chat & SPARQL Flow
+
+- Open the new chat page at `/chat` to talk with the LLM.
+- If the assistant generates a SPARQL query, buttons appear to:
+  - open the query in the SPARQL editor,
+  - or download the query as `query.sparql`.
+- From the SPARQL editor, the "Explain" action opens the chat page in a new tab and preserves the explanation request.
+
 ### Commit and Push
 
 ```sh

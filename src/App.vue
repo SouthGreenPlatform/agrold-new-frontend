@@ -3,7 +3,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/shared/Header.vue';
 import Footer from './components/shared/Footer.vue';
-import ChatBox from './components/shared/ChatBox.vue';
 
 declare global {
   interface Window {
@@ -98,24 +97,9 @@ onBeforeUnmount(() => {
     <div class="row">
       <Footer />
     </div>
-    <!--
-    <div class="chat_shell" :class="{ open: !collapsed, animating: animating }" :aria-expanded="!collapsed">
-      <ChatBox
-        :messages="chatMessages"
-        v-model="chatInput"
-        :chatLoading="chatLoading"
-        :collapsed="collapsed"
-        @send-message="sendMessage"
-      />
-      <button
-        class="chat_toggle"
-        @click="toggleChat"
-        :disabled="animating"
-        :aria-label="collapsed ? 'Open chat' : 'Close chat'"
-      >
-        <span class="arrow">{{ collapsed ? '←' : '→' }}</span>
-      </button>
-    </div>-->
+    <div class="chat_shell chat_floating" :class="{ open: !collapsed, animating: animating }" :aria-expanded="!collapsed">
+      <RouterLink to="/chat" class="chat_fab" aria-label="Open chat page">💬</RouterLink>
+    </div>
   </div>
 </template>
 
@@ -128,66 +112,10 @@ h1 {
   width: 100% !important;
   padding-top: 5rem;
   padding-bottom: 8rem;
+  margin-right: 0 !important;
 }
 
-/*
-.chat_shell {
-  --chat-width: min(360px, 90vw);
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: flex-end;
-  width: 40px;
-  transition: width 0.32s ease;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.chat_shell.open {
-  width: calc(var(--chat-width) + 40px);
-}
-
-.chat_shell .text_box {
-  transition: opacity 0.2s ease;
-}
-
-.chat_shell:not(.open) .text_box {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.chat_toggle {
-  width: 40px;
-  min-width: 40px;
-  height: 56px;
-  border: 1px solid #ccc;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  background: #719c15;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.chat_toggle:hover:not(:disabled) {
-  background: #5a7f11;
-}
-
-.chat_toggle:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.chat_toggle .arrow {
-  display: inline-block;
-}
-*/
-
+.chat_floating { position: fixed; right: 18px; bottom: 18px; z-index: 9999 }
+.chat_fab { display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:28px; background:#0f6912; color:#fff; text-decoration:none; font-size:24px; box-shadow:0 6px 18px rgba(0,0,0,0.18) }
+.chat_fab:hover { transform:translateY(-2px) }
 </style>

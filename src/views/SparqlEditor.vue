@@ -3,6 +3,7 @@ import { computed, ref, watch, onMounted } from 'vue';
 import { SPAR_QL_ENDPOINT_URL } from '../assets/scripts/config';
 import { prefixes, queryPatterns } from '@/assets/scripts/querypatterns';
 import ArianThread from '@/components/shared/ArianThread.vue';
+import { useChatStore } from '@/stores/chat'
 
 const defaultQuery = `SELECT ?capital ?country WHERE {
   ?country a dbo:Country ;
@@ -153,6 +154,9 @@ async function generateSPARQL() {
   }
 
   setStatus('Generate SPARQL from LLM…', 'loading');
+  const chatStore = useChatStore()
+  chatStore.loading = true
+  chatStore.startGenerationSequence()
   try {
     const response = await fetch('/api/llm', {
       method: 'POST',
@@ -169,6 +173,9 @@ async function generateSPARQL() {
     setStatus('Request generated', '');
   } catch (error) {
     setStatus(`Error API: ${getErrorMessage(error)}`, 'error');
+  } finally {
+    chatStore.loading = false
+    chatStore.stopGenerationSequence()
   }
 }
 
@@ -178,32 +185,14 @@ async function executeSPARQL() {
   if (!endpointValue || !sparql) {
     setStatus('Endpoint and request requiered.', 'error');
     return;
-  }
-
-  setStatus('Exécution SPARQL…', 'loading');
-  if (format.value === 'application/sparql-results+json') {
-    try {
-      const url = `${endpointValue}?query=${encodeURIComponent(sparql)}&timeout=${encodeURIComponent(timeout.value)}&format=json`;
-      const response = await fetch(url, { headers: { Accept: 'application/sparql-results+json' } });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const data = await response.json();
-      lastJSON.value = data;
-      jsonOutput.value = syntaxHL(data);
-      renderTable(data);
-      setStatus(`${data.results?.bindings?.length ?? 0} résultat(s)`, '');
-      activeTab.value = 'json';
-    } catch (error) {
-      setStatus(`Error : ${getErrorMessage(error)}`, 'error');
-    }
-  } else {
-    downloadResults();
-  }
-}
-
-function downloadResults() {
-  const endpointValue = endpoint.value.trim();
-  const sparql = query.value.trim();
-  if (!endpointValue || !sparql) {
+  // Open the chat page in a new tab with the explain prompt preserved so the user doesn't lose the current query
+  const prompt = `Explain this SPARQL request clearly and shortly : ${sparql}`
+  localStorage.setItem('chat-draft', prompt)
+  // open the chat in a new tab to avoid losing current page state
+  const chatUrl = new URL(window.location.href)
+  chatUrl.pathname = '/chat'
+  window.open(chatUrl.toString(), '_blank')
+  setStatus('Opened chat page with explanation request', '')
     setStatus('Endpoint and request needed.', 'error');
     return;
   }
@@ -223,6 +212,9 @@ async function explainQuery() {
   activeTab.value = 'summary';
   summaryOutput.value = '…';
   try {
+    const chatStore = useChatStore()
+    chatStore.loading = true
+    chatStore.startGenerationSequence()
     const response = await fetch('/api/llm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -234,6 +226,8 @@ async function explainQuery() {
     const data = await response.json();
     summaryOutput.value = data.reply || data.choices?.[0]?.message?.content || 'Explaination unavailable.';
     setStatus('Explaination generated', '');
+    chatStore.loading = false
+    chatStore.stopGenerationSequence()
   } catch (error) {
     summaryOutput.value = `Error : ${getErrorMessage(error)}`;
     setStatus('Error', 'error');
@@ -305,6 +299,12 @@ function startIntro() {
 onMounted(() => {
   const saved = localStorage.getItem('sparql-query');
   if (saved) query.value = saved;
+  const fromChat = localStorage.getItem('sparql-query-from-chat');
+  if (fromChat) {
+    query.value = fromChat;
+    localStorage.removeItem('sparql-query-from-chat');
+    setStatus('Requête chargée depuis la discussion', '');
+  }
 });
 
 watch(query, (value) => {

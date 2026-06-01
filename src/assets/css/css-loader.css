@@ -361,7 +361,7 @@
  height:40px;
  left:50%;
  top:50%;
- margin:-20px 0 0 -15px;
+ margin:-20px 0 0 -20px;
  border-radius:20px 0 0 20px;
  overflow:hidden;
  background:radial-gradient(circle at 14px 20px, #25a25a 10px, transparent 10px),radial-gradient(circle at 14px 20px, #1b7943 14px, transparent 14px),linear-gradient(180deg, transparent 15px, #2ecc71 15px, #2ecc71 25px, transparent 25px);

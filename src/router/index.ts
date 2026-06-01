@@ -7,6 +7,7 @@ import Documentation from '@/views/Documentation.vue'
 import QuickSearch from '@/views/QuickSearch.vue'
 import ApiDoc from '@/views/ApiDoc.vue'
 import RelFinder from '@/views/RelFinder.vue'
+import ChatPage from '@/views/ChatPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,11 @@ const router = createRouter({
       path: '/rel-finder',
       name: 'rel-finder',
       component: RelFinder
+    },
+    {
+      path: '/chat',
+      name: 'chat',
+      component: ChatPage
     },
     {
       path: '/:pathMatch(.*)*',
