@@ -42,7 +42,7 @@ async function sendMessage() {
     const reply = data.reply || data.choices?.[0]?.message?.content || String(data)
     store.addMessage({ role: 'assistant', text: String(reply) })
   } catch (e) {
-    store.addMessage({ role: 'system', text: 'Erreur LLM: ' + (e instanceof Error ? e.message : String(e)) })
+    store.addMessage({ role: 'system', text: 'LLM error: ' + (e instanceof Error ? e.message : String(e)) })
   } finally {
     store.loading = false
     store.stopGenerationSequence()
@@ -71,24 +71,46 @@ function looksLikeSparql(text = ''): boolean {
   return false
 }
 
+function extractSparql(text = ''): string {
+  let cleaned = text.replace(/```sparql/gi, '').replace(/```/g, '').trim()
+  const fenceMatch = text.match(/```sparql\s*([\s\S]*?)\s*```/i)
+  if (fenceMatch?.[1]) {
+    cleaned = fenceMatch[1].trim()
+  }
+  const keywordIndex = cleaned.toLowerCase().search(/\b(select|construct|ask|describe|prefix)\b/)
+  if (keywordIndex >= 0) {
+    cleaned = cleaned.slice(keywordIndex).trim()
+  }
+  return cleaned
+}
+
 function openInSparqlEditor(text = '') {
   try {
-    const cleaned = text.replace(/```sparql|```/gi, '').trim()
+    const cleaned = extractSparql(text)
     localStorage.setItem('sparql-query-from-chat', cleaned)
-    router.push({ path: '/sparql-editor' })
+    const url = router.resolve({ path: '/sparql-editor' }).href
+    window.open(url, '_blank')
   } catch (e) {
     console.error(e)
   }
 }
 
 function downloadSparql(text = '') {
-  const cleaned = text.replace(/```sparql|```/gi, '').trim()
+  const cleaned = extractSparql(text)
   const blob = new Blob([cleaned], { type: 'text/plain' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = 'query.sparql'
   link.click()
   URL.revokeObjectURL(link.href)
+}
+
+function simulateResponse() {
+  const text = input.value.trim() || 'Sample LLM response: SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10';
+  if (!text) return
+  store.addMessage({ role: 'assistant', text })
+  input.value = ''
+  scrollToBottom()
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -103,16 +125,16 @@ function handleKeydown(event: KeyboardEvent) {
   <div class="chat-page">
     <div class="chat-header-bar">
       <div class="chat-header-text">
-        <span class="chat-tag">Assistant IA</span>
-        <h1>Chat with the IA</h1>
-        <p>Échangez avec le modèle pour générer des requêtes SPARQL, expliquer des résultats et explorer vos données.</p>
+        <span class="chat-tag">AI Assistant</span>
+        <h1>Chat with the AI</h1>
+        <p>Exchange with the model to generate SPARQL queries, explain results, and explore your data.</p>
       </div>
-      <button class="yasrbtn primary" @click="store.clear()">Nouvelle conversation</button>
+      <button class="yasrbtn primary" @click="store.clear()">New conversation</button>
     </div>
     <div class="chat-container">
       <div class="text_box" :class="{ 'full-screen': isFullscreen }">
         <div class="chat_header">
-          <span>Assistant</span>
+          <span>AI Assistant</span>
           <!--<div class="header_actions">
             <button class="icon_btn" type="button" @click="toggleFullscreen" :title="isFullscreen ? 'Exit full screen' : 'Full screen'">{{ isFullscreen ? '⤫' : '⤢' }}</button>
             <div v-if="store.loading" class="loading_dot" aria-hidden="true" title="Loading">●</div>
@@ -135,17 +157,22 @@ function handleKeydown(event: KeyboardEvent) {
             v-model="input"
             @keydown="handleKeydown"
             :disabled="store.loading"
-            placeholder="Posez une question ou demandez une requête SPARQL..."
+            placeholder="Ask a question or request a SPARQL query..."
           ></textarea>
-          <button class="send_btn" @click="sendMessage" :disabled="store.loading">
-            <span>{{ store.loading ? '...' : 'Envoyer' }}</span>
-          </button>
+          <div class="chat_input_actions">
+            <button class="send_btn" @click="sendMessage" :disabled="store.loading">
+              <span>{{ store.loading ? '...' : 'Send' }}</span>
+            </button>
+            <button class="yasrbtn" type="button" @click="simulateResponse">
+              Simulate LLM response
+            </button>
+          </div>
         </div>
 
         <div v-if="store.loading || store.connectionState !== 'idle'" class="loading-overlay">
           <div class="loading-box">
             <div class="spinner"></div>
-            <div class="loading-text">{{ store.connectionState === 'connecting' ? 'Connexion au LLM…' : store.connectionState === 'generating' ? 'Génération de la réponse…' : 'En attente…' }}</div>
+            <div class="loading-text">{{ store.connectionState === 'connecting' ? 'Connecting to LLM…' : store.connectionState === 'generating' ? 'Generating response…' : 'Waiting…' }}</div>
           </div>
         </div>
       </div>
@@ -258,6 +285,12 @@ h1 {color :#0f6912}
   padding:18px 20px 22px;
   border-top:1px solid rgba(15,105,18,0.12);
   background: #f4f7ee;
+}
+
+.chat_input_actions {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .chat_input textarea {

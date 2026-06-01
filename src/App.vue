@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink, RouterView } from 'vue-router'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute, RouterView } from 'vue-router'
 import Header from './components/shared/Header.vue';
 import Footer from './components/shared/Footer.vue';
 
@@ -10,43 +10,19 @@ declare global {
   }
 }
 
-const chatMessages = ref([{ role: 'system', text: 'Assistant initialised.' }]);
-const chatInput = ref('');
-const chatLoading = ref(false);
-const collapsed = ref(true);
-const animating = ref(false);
+const router = useRouter();
+const route = useRoute();
+const promptDraft = ref('');
 
-async function sendMessage() {
-  const text = chatInput.value && chatInput.value.trim();
-  if (!text) return;
-  chatMessages.value.push({ role: 'user', text });
-  chatInput.value = '';
-  chatLoading.value = true;
-  try {
-    const res = await fetch('/api/llm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text }),
-    });
-    if (!res.ok) throw new Error('LLM endpoint error');
-    const data = await res.json();
-    const reply = data.reply || data.choices?.[0]?.message?.content || JSON.stringify(data);
-    chatMessages.value.push({ role: 'assistant', text: reply });
-  } catch (err) {
-    chatMessages.value.push({ role: 'assistant', text: 'Error: impossible to contact LLM service.' });
-    console.error(err);
-  } finally {
-    chatLoading.value = false;
+const showChatLauncher = computed(() => route.path !== '/chat');
+
+function goToChat() {
+  const prompt = promptDraft.value.trim();
+  if (prompt) {
+    localStorage.setItem('chat-draft', prompt);
+    promptDraft.value = '';
   }
-}
-
-function toggleChat() {
-  if (animating.value) return;
-  animating.value = true;
-  collapsed.value = !collapsed.value;
-  window.setTimeout(() => {
-    animating.value = false;
-  }, 320);
+  router.push({ path: '/chat' });
 }
 
 function adjustChatBottom() {
@@ -97,8 +73,17 @@ onBeforeUnmount(() => {
     <div class="row">
       <Footer />
     </div>
-    <div class="chat_shell chat_floating" :class="{ open: !collapsed, animating: animating }" :aria-expanded="!collapsed">
-      <RouterLink to="/chat" class="chat_fab" aria-label="Open chat page">💬</RouterLink>
+    <div v-if="showChatLauncher" class="chat_shell chat_floating">
+      <div class="chat_launcher">
+        <input
+          v-model="promptDraft"
+          @keydown.enter.prevent="goToChat"
+          placeholder="Poser une question au LLM..."
+          aria-label="Prompt for LLM chat"
+          class="chat_prompt"
+        />
+        <button class="chat_btn" type="button" @click="goToChat">Aller au chat</button>
+      </div>
     </div>
   </div>
 </template>
@@ -115,7 +100,72 @@ h1 {
   margin-right: 0 !important;
 }
 
-.chat_floating { position: fixed; right: 18px; bottom: 18px; z-index: 9999 }
-.chat_fab { display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:28px; background:#0f6912; color:#fff; text-decoration:none; font-size:24px; box-shadow:0 6px 18px rgba(0,0,0,0.18) }
-.chat_fab:hover { transform:translateY(-2px) }
+.chat_floating {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(15,105,18,0.15);
+  border-radius: 999px;
+  box-shadow: 0 16px 40px rgba(15,105,18,0.18);
+  padding: 8px 12px;
+  backdrop-filter: blur(10px);
+}
+
+.chat_launcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat_prompt {
+  min-width: 200px;
+  max-width: 320px;
+  border: 1px solid rgba(15,105,18,0.2);
+  border-radius: 999px;
+  padding: 10px 14px;
+  outline: none;
+  font-size: 0.95rem;
+  color: #0f3912;
+  background: #ffffff;
+}
+
+.chat_prompt:focus {
+  border-color: #86b817;
+  box-shadow: 0 0 0 4px rgba(134,184,23,0.12);
+}
+
+.chat_btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #0f6912;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.chat_btn:hover {
+  background: #13401a;
+}
+
+@media (max-width: 640px) {
+  .chat_floating {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+    padding: 10px;
+  }
+
+  .chat_prompt {
+    flex: 1;
+    min-width: 0;
+  }
+}
 </style>

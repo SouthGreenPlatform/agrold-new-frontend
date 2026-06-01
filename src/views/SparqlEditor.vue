@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { SPAR_QL_ENDPOINT_URL } from '../assets/scripts/config';
 import { prefixes, queryPatterns } from '@/assets/scripts/querypatterns';
 import ArianThread from '@/components/shared/ArianThread.vue';
-import { useChatStore } from '@/stores/chat'
 
 const defaultQuery = `SELECT ?capital ?country WHERE {
   ?country a dbo:Country ;
@@ -57,6 +57,8 @@ const formats = [
   { value: 'text/csv', label: 'CSV' },
   { value: 'text/tab-separated-values', label: 'TSV' }
 ];
+
+const router = useRouter();
 
 const patterns = queryPatterns;
 const selectedPatternIdx = ref<number | null>(null);
@@ -149,53 +151,24 @@ function getErrorMessage(error: unknown) {
 async function generateSPARQL() {
   const question = nlq.value.trim();
   if (!question) {
-    setStatus('Enter a question in natural langage.', 'error');
+    setStatus('Enter a question in natural language.', 'error');
     return;
   }
 
-  setStatus('Generate SPARQL from LLM…', 'loading');
-  const chatStore = useChatStore()
-  chatStore.loading = true
-  chatStore.startGenerationSequence()
-  try {
-    const response = await fetch('/api/llm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `Generate onlu the SPARQL request for the endpoint ${endpoint.value} based of the following question : ${question}`
-      })
-    });
-
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const data = await response.json();
-    const sparql = data.reply || data.choices?.[0]?.message?.content || String(data);
-    query.value = sparql.replace(/```sparql|```/gi, '').trim();
-    setStatus('Request generated', '');
-  } catch (error) {
-    setStatus(`Error API: ${getErrorMessage(error)}`, 'error');
-  } finally {
-    chatStore.loading = false
-    chatStore.stopGenerationSequence()
-  }
+  const prompt = `Generate only the SPARQL request for the endpoint ${endpoint.value} based on the following question: ${question}`;
+  localStorage.setItem('chat-draft', prompt);
+  setStatus('Redirecting to chat page...', 'loading');
+  router.push({ path: '/chat' });
 }
 
 async function executeSPARQL() {
   const endpointValue = endpoint.value.trim();
   const sparql = query.value.trim();
   if (!endpointValue || !sparql) {
-    setStatus('Endpoint and request requiered.', 'error');
-    return;
-  // Open the chat page in a new tab with the explain prompt preserved so the user doesn't lose the current query
-  const prompt = `Explain this SPARQL request clearly and shortly : ${sparql}`
-  localStorage.setItem('chat-draft', prompt)
-  // open the chat in a new tab to avoid losing current page state
-  const chatUrl = new URL(window.location.href)
-  chatUrl.pathname = '/chat'
-  window.open(chatUrl.toString(), '_blank')
-  setStatus('Opened chat page with explanation request', '')
-    setStatus('Endpoint and request needed.', 'error');
+    setStatus('Endpoint and request required.', 'error');
     return;
   }
+
   const url = `${endpointValue}?query=${encodeURIComponent(sparql)}&timeout=${encodeURIComponent(timeout.value)}&format=${encodeURIComponent(format.value)}`;
   window.open(url, '_blank');
   setStatus('Results opened in a new tab', '');
@@ -208,30 +181,12 @@ async function explainQuery() {
     return;
   }
 
-  setStatus('Explaination in progress…', 'loading');
-  activeTab.value = 'summary';
-  summaryOutput.value = '…';
-  try {
-    const chatStore = useChatStore()
-    chatStore.loading = true
-    chatStore.startGenerationSequence()
-    const response = await fetch('/api/llm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `Explain this SPARQL request clearly and shortly : ${sparql}`
-      })
-    });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const data = await response.json();
-    summaryOutput.value = data.reply || data.choices?.[0]?.message?.content || 'Explaination unavailable.';
-    setStatus('Explaination generated', '');
-    chatStore.loading = false
-    chatStore.stopGenerationSequence()
-  } catch (error) {
-    summaryOutput.value = `Error : ${getErrorMessage(error)}`;
-    setStatus('Error', 'error');
-  }
+  const prompt = `Explain this SPARQL request clearly and shortly : ${sparql}`;
+  localStorage.setItem('chat-draft', prompt);
+  const chatUrl = new URL(window.location.href);
+  chatUrl.pathname = '/chat';
+  window.open(chatUrl.toString(), '_blank');
+  setStatus('Opened chat page with explanation request', '');
 }
 
 async function copyJSON() {
@@ -364,7 +319,7 @@ watch(query, (value) => {
             <label for="nlq"><b style="font-size: 15px">Question (LLM)</b></label>
             <div class="llm-field">
               <input id="nlq" type="text" v-model="nlq" placeholder="Formulate your query as a question" />
-              <button class="btn btn-primary" type="button" @click="generateSPARQL"><i class="ti ti-wand"></i> Generate with LLM ↗</button>
+              <button class="btn btn-primary" type="button" @click="generateSPARQL"><i class="ti ti-wand"></i> Generate in Chat ↗</button>
             </div>
           </div>
 
