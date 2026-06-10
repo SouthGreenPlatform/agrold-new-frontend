@@ -67,7 +67,7 @@ onBeforeUnmount(() => {
     <div class="row header-view">
       <Header />
     </div>
-    <div class="row router-view">
+    <div :class="['row', 'router-view', { 'router-view--no-top-padding': route.path === '/chat' }]">
       <RouterView />
     </div>
     <div class="row">
@@ -98,6 +98,11 @@ h1 {
   padding-top: 5rem;
   padding-bottom: 8rem;
   margin-right: 0 !important;
+}
+
+.router-view--no-top-padding {
+  padding-top: 0 !important;
+  padding-bottom: 7.2rem;
 }
 
 .chat_floating {

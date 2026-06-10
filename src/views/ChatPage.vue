@@ -7,6 +7,7 @@ const router = useRouter()
 const store = useChatStore()
 const input = ref('')
 const isFullscreen = ref(false)
+const pageRef = ref<HTMLDivElement | null>(null)
 const messagesRef = ref<HTMLDivElement | null>(null)
 
 type ChatMessage = { role: string; text: string }
@@ -54,8 +55,9 @@ function toggleFullscreen() {
 }
 
 function scrollToBottom() {
-  if (messagesRef.value) {
-    messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+  const scrollTarget = pageRef.value || messagesRef.value
+  if (scrollTarget) {
+    scrollTarget.scrollTop = scrollTarget.scrollHeight
   }
 }
 
@@ -122,7 +124,7 @@ function handleKeydown(event: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="chat-page">
+  <div class="chat-page" ref="pageRef">
     <div class="chat-header-bar">
       <div class="chat-header-text">
         <span class="chat-tag">AI Assistant</span>
@@ -180,11 +182,6 @@ function handleKeydown(event: KeyboardEvent) {
 </template>
 
 <style scoped>
-
-.router-view {
-  padding-top: 0 !important;
-  padding-bottom: 8rem;
-}
 
 .chat-page {
   width: 100%;
