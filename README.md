@@ -39,6 +39,17 @@ npm run build
   - open the query in the SPARQL editor,
   - or download the query as `query.sparql`.
 - From the SPARQL editor, the "Explain" action opens the chat page in a new tab and preserves the explanation request.
+- The SPARQL editor also supports loading a predefined query pattern via URL, for example:
+  - `/sparql-editor?patternId=1`
+  - `/sparql-editor?patternId=4`
+
+### Query Pattern Links in Markdown
+
+To create a markdown link that opens the SPARQL editor with a pattern preselected, use a direct link to the editor page with the `patternId` query parameter. Example:
+
+```md
+[Open pattern 3 in the SPARQL editor](/sparql-editor?patternId=3)
+```
 
 ### Commit and Push
 

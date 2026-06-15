@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { SPAR_QL_ENDPOINT_URL } from '../assets/scripts/config';
 import { prefixes, queryPatterns } from '@/assets/scripts/querypatterns';
 import ArianThread from '@/components/shared/ArianThread.vue';
@@ -32,7 +32,7 @@ const queryTextareaRef = ref<HTMLTextAreaElement | null>(null);
 const gutterRef = ref<HTMLDivElement | null>(null);
 
 const lineNumbers = computed(() => {
-  const count = query.value.split('\n').length;
+  const count = query.value.split(/\r\n|\r|\n/).length;
   return Array.from({ length: Math.max(15, count) }, (_, i) => i + 1);
 });
 
@@ -40,6 +40,13 @@ function syncLineNumbersScroll() {
   if (queryTextareaRef.value && gutterRef.value) {
     gutterRef.value.scrollTop = queryTextareaRef.value.scrollTop;
   }
+}
+
+function resizeQueryTextarea() {
+  const textarea = queryTextareaRef.value;
+  if (!textarea) return;
+  textarea.style.height = 'auto';
+  textarea.style.height = `${Math.max(textarea.scrollHeight, 320)}px`;
 }
 
 type SparqlRow = Record<string, { value?: string; type?: string }>;
@@ -59,11 +66,41 @@ const formats = [
 ];
 
 const router = useRouter();
+const route = useRoute();
 
 const patterns = queryPatterns;
 const selectedPatternIdx = ref<number | null>(null);
+const expandedPatternIndex = ref<number | null>(null);
 const parameterValues = ref<string[]>([]);
+const patternLabelRefs = ref<Array<HTMLElement | null>>([]);
+const labelOverflow = ref<boolean[]>([]);
 const selectedPattern = computed(() => selectedPatternIdx.value !== null ? patterns[selectedPatternIdx.value] : null);
+
+function stripHtml(text: string) {
+  return text.replace(/<[^>]*>/g, '');
+}
+
+function setPatternLabelRef(index: number) {
+  return (el: HTMLElement | null) => {
+    patternLabelRefs.value[index] = el;
+  };
+}
+
+function isLabelLong(label: string) {
+  return stripHtml(label).length > 70;
+}
+
+function updateLabelOverflow() {
+  labelOverflow.value = patterns.map((_, index) => {
+    const el = patternLabelRefs.value[index];
+    if (!el) return false;
+    return el.scrollHeight > el.clientHeight + 1;
+  });
+}
+
+function handleResize() {
+  nextTick(updateLabelOverflow);
+}
 
 function escapePatternValue(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -75,6 +112,20 @@ function selectPattern(index: number) {
   query.value = prefixes + pattern.query;
   parameterValues.value = [...pattern.params];
   setStatus(`Pattern selected : ${pattern.label}`, '');
+}
+
+function togglePattern(index: number) {
+  expandedPatternIndex.value = expandedPatternIndex.value === index ? null : index;
+}
+
+function applyRoutePattern() {
+  const rawId = route.query.patternId;
+  const parsed = Number(rawId);
+  const index = Number.isInteger(parsed) && parsed >= 1 && parsed <= patterns.length ? parsed - 1 : null;
+  if (index !== null) {
+    selectPattern(index);
+    nextTick(resizeQueryTextarea);
+  }
 }
 
 function applyPatternReplacements() {
@@ -260,11 +311,27 @@ onMounted(() => {
     localStorage.removeItem('sparql-query-from-chat');
     setStatus('Requête chargée depuis la discussion', '');
   }
+  nextTick(() => {
+    updateLabelOverflow();
+    resizeQueryTextarea();
+  });
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
 });
 
 watch(query, (value) => {
   localStorage.setItem('sparql-query', value);
+  resizeQueryTextarea();
 });
+
+watch(
+  () => route.query.patternId,
+  () => applyRoutePattern(),
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -349,7 +416,7 @@ watch(query, (value) => {
               <div class="line-gutter" ref="gutterRef">
                 <div v-for="line in lineNumbers" :key="line" class="line-number">{{ line }}</div>
               </div>
-              <textarea id="query" rows="15" cols="76" v-model="query" ref="queryTextareaRef" @scroll="syncLineNumbersScroll"></textarea>
+              <textarea id="query" cols="76" wrap="off" v-model="query" ref="queryTextareaRef" @scroll="syncLineNumbersScroll" @input="resizeQueryTextarea"></textarea>
             </div>
           </div>
 
@@ -380,11 +447,30 @@ watch(query, (value) => {
           <b style="font-size: 15px">Query Patterns</b>
           <div class="pattern-list">
             <div v-for="(pattern, index) in patterns" :key="index" class="pattern-item">
-              <div class="pattern-label" v-html="pattern.label"></div>
-              <button class="yasrbtn" type="button" @click="selectPattern(index)">
-                {{ selectedPatternIdx === index ? 'Selected' : 'Choose' }}
-              </button>
+              <div class="pattern-head">
+                <button
+                  v-if="labelOverflow[index] || isLabelLong(pattern.label)"
+                  class="pattern-toggle"
+                  type="button"
+                  @click="togglePattern(index)"
+                  :aria-expanded="expandedPatternIndex === index"
+                >
+                  {{ expandedPatternIndex === index ? '−' : '+' }}
+                </button>
+                <div class="pattern-label-wrapper" :class="{ expanded: expandedPatternIndex === index }" :ref="setPatternLabelRef(index)">
+                  <div class="pattern-label" v-html="pattern.label"></div>
+                </div>
+                <div class="pattern-actions">
+                  <button class="yasrbtn" type="button" @click="selectPattern(index)">
+                    {{ selectedPatternIdx === index ? 'Selected' : 'Choose' }}
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="pattern-links-card">
+            <p>Want more query patterns? Visit the dedicated page for a full catalog.</p>
+            <a class="yasrbtn secondary" href="/query-patterns">Query Patterns page</a>
           </div>
 
           <div v-if="selectedPattern" class="pattern-params">
