@@ -231,8 +231,8 @@ a,
   background: var(--color-background-primary, #fff);
   border: 1px solid var(--color-border-secondary, #d1d5db);
   border-radius: 5px;
-  padding: 16px;
-  min-height: 92px;
+  padding: 12px;
+  min-height: 72px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -240,8 +240,20 @@ a,
 
 .sparql-editor-page .option-box label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
+}
+
+.sparql-editor-page .timeout-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sparql-editor-page .timeout-row input {
+  width: 70px;
+  padding: 8px 10px;
+  min-width: 0;
 }
 
 .sparql-editor-page .toolbar-panel {

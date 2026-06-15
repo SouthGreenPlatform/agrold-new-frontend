@@ -330,7 +330,10 @@ watch(query, (value) => {
             </div>
             <div class="option-box">
               <label for="timeout"><b>Execution timeout</b></label>
-              <input id="timeout" type="text" class="yasrbtn" v-model="timeout" style="width:70px" /> milliseconds
+              <div class="timeout-row">
+                <input id="timeout" type="text" v-model="timeout" />
+                <span>ms</span>
+              </div>
             </div>
             <div class="option-box">
               <label for="format"><b>Results Format</b></label>
@@ -446,4 +449,8 @@ watch(query, (value) => {
 @import '@/assets/sparql-editor/yasr.min.css';
 @import '@/assets/introjs/introjs.css';
 @import '@/assets/sparql-editor/main.css';
+
+.foowrap.sparql-editor-page {
+  margin: 1rem 0 5rem;
+}
 </style>
