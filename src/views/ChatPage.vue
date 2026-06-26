@@ -55,13 +55,22 @@ function toggleFullscreen() {
 }
 
 function scrollToBottom() {
-  const scrollTarget = pageRef.value || messagesRef.value
+  const scrollTarget = messagesRef.value
   if (scrollTarget) {
-    scrollTarget.scrollTop = scrollTarget.scrollHeight
+    requestAnimationFrame(() => {
+      if (scrollTarget) {
+        scrollTarget.scrollTop = scrollTarget.scrollHeight
+      }
+    })
   }
 }
 
 watch(() => store.messages.length, async () => {
+  await nextTick()
+  scrollToBottom()
+})
+
+watch(() => store.loading, async () => {
   await nextTick()
   scrollToBottom()
 })
@@ -185,15 +194,14 @@ function handleKeydown(event: KeyboardEvent) {
 
 .chat-page {
   width: 100%;
-  min-height: calc(100vh - 16rem);
+  height: calc(100vh - 8rem);
+  max-height: calc(100vh - 8rem);
   background: linear-gradient(180deg, #f9fef3 0%, #f0f6e8 45%, #eff4df 100%);
   padding: 24px;
-  margin-bottom: 3rem;
   display:flex;
   flex-direction:column;
   align-items:center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -205,11 +213,21 @@ h1 {color :#0f6912}
 .chat-header-text p { margin:0; max-width:760px; color:#425237; line-height:1.7; }
 .yasrbtn.primary { background:#0f6912; color:#fff; border:none; padding:0.9rem 1.3rem; border-radius:12px; box-shadow:0 12px 30px rgba(15,105,18,0.22); }
 .chat-wrapper { max-width:1200px; margin: 0 auto; display:flex; justify-content:center; flex:1; }
-.chat-container { width:100%; max-width:900px; margin: 0 auto; display:flex; flex-direction:column; gap:12px; flex:1 1 auto; min-height:0; }
+.chat-container {
+  width:100%;
+  max-width:900px;
+  margin: 0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  flex:1 1 auto;
+  min-height:0;
+}
 
 .text_box {
   width: 100%;
   min-height: 0;
+  height: 100%;
   flex: 1 1 auto;
   box-sizing: border-box;
   display: flex;
@@ -218,7 +236,7 @@ h1 {color :#0f6912}
   border: 1px solid rgba(15,105,18,0.18);
   border-radius: 24px;
   box-shadow: 0 18px 40px rgba(15,105,18,0.12);
-  overflow: visible;
+  overflow: hidden;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -261,10 +279,11 @@ h1 {color :#0f6912}
 
 .chat_messages {
   padding: 22px 20px;
-  overflow-y: visible;
+  overflow-y: auto;
   flex: 1 1 auto;
   min-height: 0;
   background: #f4f7ee;
+  scroll-behavior: smooth;
 }
 
 .chat_msg { display:flex; gap:12px; align-items:flex-start; margin-bottom:18px }

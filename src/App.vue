@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute, RouterView } from 'vue-router'
 import Header from './components/shared/Header.vue';
 import Footer from './components/shared/Footer.vue';
@@ -15,6 +15,7 @@ const route = useRoute();
 const promptDraft = ref('');
 
 const showChatLauncher = computed(() => route.path !== '/chat');
+const isChatRoute = computed(() => route.path === '/chat');
 
 function goToChat() {
   const prompt = promptDraft.value.trim();
@@ -43,6 +44,13 @@ function adjustChatBottom() {
   shell.style.bottom = bottom + 'px';
 }
 
+watch(isChatRoute, (chat) => {
+  document.body.style.overflow = chat ? 'hidden' : '';
+  document.documentElement.style.overflow = chat ? 'hidden' : '';
+  document.body.style.margin = '0';
+  document.documentElement.style.margin = '0';
+}, { immediate: true });
+
 onMounted(() => {
   adjustChatBottom();
   window.addEventListener('resize', adjustChatBottom);
@@ -62,7 +70,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="container app-container">
+  <div class="container app-container" :class="{ 'app-container--chat': isChatRoute }">
 
     <div class="row header-view">
       <Header />
@@ -93,16 +101,32 @@ h1 {
   color: black !important;
 }
 
+.app-container {
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-container--chat {
+  max-width: none;
+  width: 100%;
+}
+
 .router-view {
   width: 100% !important;
   padding-top: 5rem;
   padding-bottom: 8rem;
   margin-right: 0 !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .router-view--no-top-padding {
   padding-top: 0 !important;
-  padding-bottom: 7.2rem;
+  padding-bottom: 0 !important;
 }
 
 .chat_floating {
